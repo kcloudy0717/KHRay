@@ -4,8 +4,8 @@
 
 struct Ray
 {
-	Ray(Vector3f Origin, Vector3f Direction, float TMax = INFINITY)
-		: Origin(Origin), Direction(Direction), TMax(TMax)
+	Ray(Vector3f Origin, Vector3f Direction)
+		: Origin(Origin), Direction(Direction), TMax(INFINITY)
 	{
 
 	}
