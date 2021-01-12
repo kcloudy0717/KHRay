@@ -25,6 +25,10 @@ int FindInterval(int size, const Predicate& pred)
 	return std::clamp(first - 1, 0, size - 2);
 }
 
+static constexpr int NumCIESamples = 471;
+static constexpr float CIE_Y_integral = 106.856895f;
+static constexpr int nRGB2SpectSamples = 32;
+
 const float CIE_X[NumCIESamples] =
 {
 	// CIE X function values

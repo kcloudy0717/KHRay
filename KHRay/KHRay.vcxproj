@@ -143,15 +143,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="KHRay\Camera.cpp" />
     <ClCompile Include="KHRay\main.cpp" />
-    <ClCompile Include="Spectrum.cpp" />
+    <ClCompile Include="KHRay\Ray.cpp" />
+    <ClCompile Include="KHRay\Spectrum.cpp" />
+    <ClCompile Include="KHRay\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="KHRay\Camera.h" />
+    <ClInclude Include="KHRay\Random.h" />
     <ClInclude Include="KHRay\Ray.h" />
-    <ClInclude Include="KHRay\Vector2.h" />
-    <ClInclude Include="KHRay\Vector3.h" />
-    <ClInclude Include="Spectrum.h" />
-    <ClInclude Include="Texture2D.h" />
+    <ClInclude Include="KHRay\Sampling.h" />
+    <ClInclude Include="KHRay\Spectrum.h" />
+    <ClInclude Include="KHRay\Texture2D.h" />
+    <ClInclude Include="KHRay\Transform.h" />
+    <ClInclude Include="KHRay\Triangle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -16,24 +16,29 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
 
-#include "Vector2.h"
-#include "Vector3.h"
+#include <vector>
+#include <random>
+
 #include "Ray.h"
+#include "Triangle.h"
+#include "Camera.h"
 #include "Spectrum.h"
 #include "Texture2D.h"
 
-const UINT Width = 1280;
-const UINT Height = 720;
-const UINT NumChannels = 3;
+using namespace DirectX;
+
+const INT Width = 1280;
+const INT Height = 720;
+const INT NumChannels = 3;
 
 int Save(const Texture2D<RGBSpectrum>& Image)
 {
 	std::unique_ptr<BYTE[]> Pixels = std::make_unique<BYTE[]>(Width * Height * NumChannels);
 
-	UINT index = 0;
-	for (UINT y = 0; y < Height; ++y)
+	INT index = 0;
+	for (INT y = Height - 1; y >= 0; --y)
 	{
-		for (UINT x = 0; x < Width; ++x)
+		for (INT x = 0; x < Width; ++x)
 		{
 			auto color = Image.GetPixel(x, y);
 			auto ir = int(255.99 * color[0]);
@@ -53,6 +58,23 @@ int Save(const Texture2D<RGBSpectrum>& Image)
 	return EXIT_FAILURE;
 }
 
+RGBSpectrum Color(const Ray& Ray)
+{
+	Vertex v0({ -.5, -.5, 2 });
+	Vertex v1({ 0.0, +.5, 2 });
+	Vertex v2({ +.5, -.5, 2 });
+	Triangle tri(v0, v1, v2, { 1, 0, 0 });
+	XMFLOAT3 barycentrics;
+	float t;
+	if (RayIntersectsTriangle(Ray, tri, barycentrics, t))
+	{
+		return RGBSpectrum(1, 0, 0);
+	}
+
+	t = 0.5 * (Ray.Direction.y + 1.0);
+	return (1.0 - t) * RGBSpectrum(1.0, 1.0, 1.0) + t * RGBSpectrum(0.5, 0.7, 1.0);
+}
+
 int main(int argc, char** argv)
 {
 #if defined(_DEBUG)
@@ -64,12 +86,19 @@ int main(int argc, char** argv)
 
 	Texture2D<RGBSpectrum> Output(Width, Height);
 
-	for (UINT y = 0; y < Height; ++y)
-	{
-		for (UINT x = 0; x < Width; ++x)
-		{
+	Camera Camera;
+	Camera.AspectRatio = float(Width) / float(Height);
 
-			RGBSpectrum color(1, 0, 0);
+	for (INT y = 0; y < Height; ++y)
+	{
+		for (INT x = 0; x < Width; ++x)
+		{
+			auto u = double(x) / (Width - 1);
+			auto v = double(y) / (Height - 1);
+
+			Ray ray = Camera.GetRay(u, v);
+			RGBSpectrum color = Color(ray);
+
 			Output.SetPixel(x, y, color);
 		}
 	}

@@ -18,24 +18,42 @@
     <ClCompile Include="KHRay\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Spectrum.cpp">
+    <ClCompile Include="KHRay\Spectrum.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KHRay\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KHRay\Transform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KHRay\Ray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="KHRay\Vector3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="KHRay\Vector2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="KHRay\Ray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Texture2D.h">
+    <ClInclude Include="KHRay\Spectrum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Spectrum.h">
+    <ClInclude Include="KHRay\Texture2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Triangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Random.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Sampling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

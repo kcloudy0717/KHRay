@@ -171,30 +171,6 @@ static constexpr int SampledLambdaStart = 400;
 static constexpr int SampledLambdaEnd = 700;
 static constexpr int NumSpectralSamples = 60;
 
-static constexpr int NumCIESamples = 471;
-extern const float CIE_X[NumCIESamples];
-extern const float CIE_Y[NumCIESamples];
-extern const float CIE_Z[NumCIESamples];
-extern const float CIE_lambda[NumCIESamples];
-static constexpr float CIE_Y_integral = 106.856895f;
-static constexpr int nRGB2SpectSamples = 32;
-extern const float RGB2SpectLambda[nRGB2SpectSamples];
-extern const float RGBRefl2SpectWhite[nRGB2SpectSamples];
-extern const float RGBRefl2SpectCyan[nRGB2SpectSamples];
-extern const float RGBRefl2SpectMagenta[nRGB2SpectSamples];
-extern const float RGBRefl2SpectYellow[nRGB2SpectSamples];
-extern const float RGBRefl2SpectRed[nRGB2SpectSamples];
-extern const float RGBRefl2SpectGreen[nRGB2SpectSamples];
-extern const float RGBRefl2SpectBlue[nRGB2SpectSamples];
-
-extern const float RGBIllum2SpectWhite[nRGB2SpectSamples];
-extern const float RGBIllum2SpectCyan[nRGB2SpectSamples];
-extern const float RGBIllum2SpectMagenta[nRGB2SpectSamples];
-extern const float RGBIllum2SpectYellow[nRGB2SpectSamples];
-extern const float RGBIllum2SpectRed[nRGB2SpectSamples];
-extern const float RGBIllum2SpectGreen[nRGB2SpectSamples];
-extern const float RGBIllum2SpectBlue[nRGB2SpectSamples];
-
 enum class SpectrumType
 {
 	Reflectance,

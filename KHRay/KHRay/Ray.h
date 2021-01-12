@@ -1,21 +1,15 @@
 #pragma once
-
-#include "Vector3.h"
+#include <DirectXMath.h>
+#include <DirectXCollision.h>
 
 struct Ray
 {
-	Ray(Vector3f Origin, Vector3f Direction)
-		: Origin(Origin), Direction(Direction), TMax(INFINITY)
-	{
+	Ray() = default;
+	Ray(const DirectX::XMFLOAT3& Origin, const DirectX::XMFLOAT3& Direction, float Time);
 
-	}
+	DirectX::XMVECTOR XM_CALLCONV At(float T);
 
-	Vector3f At(float T)
-	{
-		return Origin + Direction * T;
-	}
-
-	Vector3f Origin;
-	Vector3f Direction;
-	float TMax;
+	DirectX::XMFLOAT3 Origin;
+	DirectX::XMFLOAT3 Direction;
+	float Time;
 };
