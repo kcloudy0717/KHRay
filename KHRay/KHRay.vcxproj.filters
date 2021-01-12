@@ -29,5 +29,11 @@
     <ClInclude Include="KHRay\Ray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="KHRay\Vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Triangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -12,12 +12,22 @@
 #define SET_LEAK_BREAKPOINT(X) X
 #endif
 
+#include <glm/glm.hpp>
+
+#include <gli/texture2d.hpp>
+#include <gli/save.hpp>
+
+const int Width = 1280;
+const int Height = 720;
+
 int main(int argc, char** argv)
 {
 #if defined(_DEBUG)
 	ENABLE_LEAK_DETECTION();
 	SET_LEAK_BREAKPOINT(-1);
 #endif
+
+	gli::texture2d output = gli::texture2d(gli::FORMAT_RGBA8_UNORM_PACK8, gli::texture2d::extent_type(Width, Height), 1);
 
 	return EXIT_SUCCESS;
 }
