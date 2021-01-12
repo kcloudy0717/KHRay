@@ -1,0 +1,62 @@
+#pragma once
+#include <memory>
+#include <windows.h>
+
+template<typename T>
+struct Texture2D
+{
+	Texture2D(UINT64 Width, UINT64 Height)
+		: Width(Width), Height(Height), NumPixels(Width* Height)
+	{
+		Pixels = std::make_unique<T[]>(NumPixels);
+	}
+
+	operator auto()
+	{
+		return &Pixels[0];
+	}
+
+	Texture2D& operator=(const Texture2D& rhs)
+	{
+		assert(NumPixels == rhs.NumPixels);
+		if (this != &rhs)
+		{
+			memcpy(Pixels.get(), rhs.Pixels.get(), NumPixels * sizeof(T));
+		}
+
+		return *this;
+	}
+
+	void Clear(T Value = (T)0)
+	{
+		for (UINT64 i = 0; i < NumPixels; ++i)
+		{
+			Pixels[i] = Value;
+		}
+	}
+
+	bool IsWithinBounds(UINT X, UINT Y) const
+	{
+		return (X >= 0 && X < Width) && (Y >= 0 && Y < Height);
+	}
+
+	void SetPixel(UINT X, UINT Y, T Color)
+	{
+		if (IsWithinBounds(X, Y))
+		{
+			Pixels[Y * Width + X] = Color;
+		}
+	}
+
+	T GetPixel(UINT X, UINT Y) const
+	{
+		if (IsWithinBounds(X, Y))
+		{
+			return Pixels[Y * Width + X];
+		}
+		return 0;
+	}
+
+	std::unique_ptr<T[]> Pixels;
+	UINT64 Width, Height, NumPixels;
+};

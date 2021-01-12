@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <compare>
 
 template <typename T>
 struct Vector3
@@ -20,6 +21,14 @@ struct Vector3
 	{
 
 	}
+
+	Vector3(const Vector3& v)
+		: x(v.x), y(v.y), z(v.z)
+	{
+
+	}
+
+	auto operator<=>(const Vector3&) const = default;
 
 	T operator[](int i) const
 	{
@@ -43,7 +52,7 @@ struct Vector3
 
 	Vector3& operator+=(const Vector3& v)
 	{
-		x += v.x; y += v.y; z += v.z;
+		*this = *this + v;
 		return *this;
 	}
 
