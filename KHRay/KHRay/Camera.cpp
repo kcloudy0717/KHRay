@@ -18,11 +18,11 @@ Ray Camera::GetRay(float U, float V) const
 	XMVECTOR vVertical = viewportHeight * v;
 	XMVECTOR vLowerLeftCorner = vPosition - vHorizontal * 0.5f - vVertical * 0.5f + FocalLength * w;
 
-	XMVECTOR direction = XMVector3Normalize(vLowerLeftCorner + U * vHorizontal + V * vVertical - vPosition);
+	XMVECTOR vDirection = XMVector3Normalize(vLowerLeftCorner + U * vHorizontal + V * vVertical - vPosition);
 	
 	XMFLOAT3 rayOrigin, rayDirection;
 	XMStoreFloat3(&rayOrigin, vPosition);
-	XMStoreFloat3(&rayDirection, direction);
+	XMStoreFloat3(&rayDirection, vDirection);
 	
 	return Ray(rayOrigin, rayDirection, 1);
 }
