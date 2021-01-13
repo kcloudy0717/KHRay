@@ -1,7 +1,6 @@
 #pragma once
 #include <cmath>
 #include <compare>
-#include <vector>
 #include <algorithm>
 
 class SampledSpectrum;
@@ -231,4 +230,4 @@ inline static SampledSpectrum rgbIllum2SpectMagenta, rgbIllum2SpectYellow;
 inline static SampledSpectrum rgbIllum2SpectRed, rgbIllum2SpectGreen;
 inline static SampledSpectrum rgbIllum2SpectBlue;
 
-void InitSampledSpectrums();
+void InitializeSampledSpectrums();

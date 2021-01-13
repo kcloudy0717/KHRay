@@ -122,7 +122,13 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>../Submodules/Embree/lib/embree3.lib</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>Xcopy "$(SolutionDir)..\Assets" "$(TargetDir)" /E /y &amp;
+Xcopy "$(SolutionDir)..\Submodules\embree\bin" "$(TargetDir)" /y
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -140,7 +146,13 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>../Submodules/Embree/lib/embree3.lib</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>Xcopy "$(SolutionDir)..\Assets" "$(TargetDir)" /E /y &amp;
+Xcopy "$(SolutionDir)..\Submodules\embree\bin" "$(TargetDir)" /y
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="KHRay\Camera.cpp" />

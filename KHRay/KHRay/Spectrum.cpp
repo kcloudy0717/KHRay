@@ -1,4 +1,5 @@
 #include "Spectrum.h"
+#include <vector>
 
 #pragma warning(disable : 4305)
 #pragma warning(disable : 4244)
@@ -1378,7 +1379,7 @@ RGBSpectrum RGBSpectrum::ToRGBSpectrum() const
 	return *this;
 }
 
-void InitSampledSpectrums()
+void InitializeSampledSpectrums()
 {
 	// Compute XYZ matching functions for SampledSpectrum
 	for (int i = 0; i < NumSpectralSamples; ++i)

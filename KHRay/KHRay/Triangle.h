@@ -26,7 +26,7 @@ struct Triangle
 	DirectX::XMFLOAT3 Color;
 };
 
-bool XM_CALLCONV RayIntersectsTriangle(const Ray& Ray, const Triangle& Triangle, DirectX::XMFLOAT3& Barycentrics, float& t)
+bool RayIntersectsTriangle(const Ray& Ray, const Triangle& Triangle, DirectX::XMFLOAT3& Barycentrics, float& t)
 {
 	using namespace DirectX;
 
