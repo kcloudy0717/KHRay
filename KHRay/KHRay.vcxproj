@@ -169,7 +169,9 @@ Xcopy "$(SolutionDir)..\Submodules\embree\bin" "$(TargetDir)" /y
     <ClInclude Include="KHRay\Spectrum.h" />
     <ClInclude Include="KHRay\Texture2D.h" />
     <ClInclude Include="KHRay\Transform.h" />
-    <ClInclude Include="KHRay\Triangle.h" />
+    <ClInclude Include="KHRay\Utility.h" />
+    <ClInclude Include="KHRay\Vertex.h" />
+    <ClInclude Include="KHRay\WaveFrontReader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
