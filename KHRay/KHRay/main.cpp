@@ -23,14 +23,17 @@
 #include <random>
 #include <filesystem>
 
-#include "WaveFrontReader.h"
 #include "Utility.h"
 
 #include "Ray.h"
 #include "Vertex.h"
 #include "Camera.h"
 #include "Spectrum.h"
+#include "AccelerationStructure.h"
+
 #include "Texture2D.h"
+
+using namespace DirectX;
 
 static RTCDevice g_RTCDevice = nullptr;
 
@@ -56,7 +59,7 @@ struct RayPayload
 	RGBSpectrum Radiance;
 };
 
-void TraceRay(RTCScene RTCScene, const Ray& Ray, RayPayload& RayPayload)
+void TraceRay(const TopLevelAccelerationStructure& Scene, const Ray& Ray, RayPayload& RayPayload)
 {
 	/*
 	 * The intersect context can be used to set intersection
@@ -77,11 +80,26 @@ void TraceRay(RTCScene RTCScene, const Ray& Ray, RayPayload& RayPayload)
 	 * There are multiple variants of rtcIntersect. This one
 	 * intersects a single ray with the scene.
 	 */
-	rtcIntersect1(RTCScene, &context, &rayhit);
+	rtcIntersect1(Scene, &context, &rayhit);
 
 	if (rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
 	{
-		RayPayload.Radiance = RGBSpectrum(1, 0, 0);
+		const auto& hit = rayhit.hit;
+		auto Instance = Scene[rayhit.hit.geomID];
+		auto GeometryDesc = (*Instance.pBLAS)[rayhit.hit.instID[0]];
+
+		const unsigned int idx0 = GeometryDesc.pIndices[hit.primID * 3 + 0];
+		const unsigned int idx1 = GeometryDesc.pIndices[hit.primID * 3 + 1];
+		const unsigned int idx2 = GeometryDesc.pIndices[hit.primID * 3 + 2];
+
+		const Vertex& vtx0 = GeometryDesc.pVertices[idx0];
+		const Vertex& vtx1 = GeometryDesc.pVertices[idx1];
+		const Vertex& vtx2 = GeometryDesc.pVertices[idx2];
+
+		XMFLOAT3 barycentrics = { 1.f - hit.u - hit.v, hit.u, hit.v };
+		Vertex v = BarycentricInterpolation(vtx0, vtx1, vtx2, barycentrics);
+
+		RayPayload.Radiance = RGBSpectrum(v.Normal.x, v.Normal.y, v.Normal.z);
 		/* Note how geomID and primID identify the geometry we just hit.
 		 * We could use them here to interpolate geometry information,
 		 * compute shading, etc.
@@ -132,175 +150,6 @@ int Save(const Texture2D<RGBSpectrum>& Image)
 	return EXIT_FAILURE;
 }
 
-struct Mesh
-{
-	RTCScene Scene;
-	RTCGeometry Geometry;
-};
-
-class AccelerationStructure
-{
-public:
-	AccelerationStructure()
-	{
-		Scene = rtcNewScene(g_RTCDevice);
-	}
-
-	~AccelerationStructure()
-	{
-		if (Scene)
-		{
-			rtcReleaseScene(Scene);
-			Scene = nullptr;
-		}
-	}
-
-	operator RTCScene() const
-	{
-		return Scene;
-	}
-protected:
-	RTCScene Scene;
-};
-
-class BottomLevelAccelerationStructure : public AccelerationStructure
-{
-public:
-	void AddGeometry(const std::filesystem::path& Path)
-	{
-		WaveFrontReader<unsigned int> Reader;
-		if (SUCCEEDED(Reader.Load(Path.c_str())))
-		{
-			auto Geometry = rtcNewGeometry(g_RTCDevice, RTC_GEOMETRY_TYPE_TRIANGLE);
-
-			/*
-			* Create a triangle mesh geometry
-			* You can look up geometry types in the API documentation to
-			* find out which type expects which buffers.
-			*
-			* We create buffers directly on the device, but you can also use
-			* shared buffers. For shared buffers, special care must be taken
-			* to ensure proper alignment and padding. This is described in
-			* more detail in the API documentation.
-			*/
-
-			auto pVertices = reinterpret_cast<Vertex*>(rtcSetNewGeometryBuffer(Geometry,
-				RTC_BUFFER_TYPE_VERTEX,
-				0,
-				RTC_FORMAT_FLOAT3,
-				sizeof(Vertex),
-				Reader.vertices.size()));
-
-			assert(Reader.indices.size() % 3 == 0);
-			size_t NumTriangles = Reader.indices.size() / 3;
-			auto pIndices = reinterpret_cast<unsigned*>(rtcSetNewGeometryBuffer(Geometry,
-				RTC_BUFFER_TYPE_INDEX,
-				0,
-				RTC_FORMAT_UINT3,
-				sizeof(unsigned int) * 3,
-				NumTriangles));
-
-			if (pVertices && pIndices)
-			{
-				for (auto [i, v] : enumerate(Reader.vertices))
-				{
-					pVertices[i] = Vertex(v.position);
-				}
-
-				for (auto [i, index] : enumerate(Reader.indices))
-				{
-					pIndices[i] = index;
-				}
-			}
-
-			/*
-			 * You must commit geometry objects when you are done setting them up,
-			 * or you will not get any intersections.
-			 */
-			rtcCommitGeometry(Geometry);
-
-			/*
-			 * In rtcAttachGeometry(...), the scene takes ownership of the geom
-			 * by increasing its reference count. This means that we don't have
-			 * to hold on to the geom handle, and may release it. The geom object
-			 * will be released automatically when the scene is destroyed.
-			 *
-			 * rtcAttachGeometry() returns a geometry ID. We could use this to
-			 * identify intersected objects later on.
-			 */
-			rtcAttachGeometry(Scene, Geometry);
-			rtcReleaseGeometry(Geometry);
-
-			Geometries.push_back(Geometry);
-		}
-	}
-
-	void Generate()
-	{
-		rtcCommitScene(Scene);
-	}
-private:
-	std::vector<RTCGeometry> Geometries;
-};
-
-struct RAYTRACING_INSTANCE_DESC
-{
-	Transform Transform;
-	BottomLevelAccelerationStructure* pBLAS;
-};
-
-class TopLevelAccelerationStructure : public AccelerationStructure
-{
-public:
-	void AddBottomLevelAccelerationStructure(const RAYTRACING_INSTANCE_DESC& Desc)
-	{
-		auto InstanceGeometry = rtcNewGeometry(g_RTCDevice, RTC_GEOMETRY_TYPE_INSTANCE);
-
-		rtcSetGeometryInstancedScene(InstanceGeometry, *Desc.pBLAS);
-		rtcAttachGeometry(Scene, InstanceGeometry);
-		rtcReleaseGeometry(InstanceGeometry);
-
-		/*
-		* In rtcAttachGeometry(...), the scene takes ownership of the geom
-		* by increasing its reference count. This means that we don't have
-		* to hold on to the geom handle, and may release it. The geom object
-		* will be released automatically when the scene is destroyed.
-		*
-		* rtcAttachGeometry() returns a geometry ID. We could use this to
-		* identify intersected objects later on.
-		*/
-		Instances.push_back(Desc);
-		InstanceGeometries.push_back(InstanceGeometry);
-		NumInstances++;
-	}
-
-	void Generate()
-	{
-		for (size_t i = 0; i < NumInstances; ++i)
-		{
-			auto& Instance = Instances[i];
-			auto& InstanceGeometry = InstanceGeometries[i];
-
-			XMMATRIX mMatrix = Instance.Transform.Matrix();
-			XMFLOAT3X4 Matrix;
-			XMStoreFloat3x4(&Matrix, mMatrix);
-
-			rtcSetGeometryTransform(InstanceGeometry, 0, RTC_FORMAT_FLOAT3X4_ROW_MAJOR, reinterpret_cast<float*>(&Matrix));
-			rtcCommitGeometry(InstanceGeometry);
-		}
-
-		/*
-		* Like geometry objects, scenes must be committed. This lets
-		* Embree know that it may start building an acceleration structure.
-		*/
-		rtcCommitScene(Scene);
-	}
-private:
-	size_t NumInstances = 0;
-	std::vector<RAYTRACING_INSTANCE_DESC> Instances;
-	std::vector<RTCGeometry> InstanceGeometries;
-};
-
 int main(int argc, char** argv)
 {
 #if defined(_DEBUG)
@@ -315,11 +164,11 @@ int main(int argc, char** argv)
 	* our errorFunction. */
 	InitializeRTCDevice();
 
-	BottomLevelAccelerationStructure BurrPuzzle;
+	BottomLevelAccelerationStructure BurrPuzzle(g_RTCDevice);
 	BurrPuzzle.AddGeometry(ModelFolderPath / "BurrPuzzle.obj");
 	BurrPuzzle.Generate();
 
-	TopLevelAccelerationStructure Scene;
+	TopLevelAccelerationStructure Scene(g_RTCDevice);
 
 	RAYTRACING_INSTANCE_DESC BurrPuzzleInstance = {};
 	BurrPuzzleInstance.Transform.SetScale(20, 20, 20);

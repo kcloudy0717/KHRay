@@ -24,6 +24,8 @@ template <typename T,
 	return iterable_wrapper{ std::forward<T>(iterable) };
 }
 
+#include <DirectXMath.h>
+
 // Returns radians
 constexpr inline float operator"" _Deg(long double Degrees)
 {
