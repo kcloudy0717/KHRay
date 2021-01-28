@@ -12,12 +12,16 @@
 #define SET_LEAK_BREAKPOINT(X) X
 #endif
 
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+
 #define STBI_MSC_SECURE_CRT
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
 
 #include <embree/rtcore.h>
 
+#include <iostream>
 #include <vector>
 #include <unordered_map>
 #include <random>
@@ -38,6 +42,31 @@
 
 using namespace DirectX;
 
+class ProgressBar
+{
+public:
+	void Update(double NewProgress)
+	{
+		CurrentProgress += NewProgress;
+	}
+	void Print()
+	{
+		constexpr int BarWidth = 70;
+		constexpr double MaxProgress = 100.0;
+
+		std::cout << "[";
+		int pos = BarWidth * CurrentProgress;
+		for (int i = 0; i < BarWidth; ++i)
+		{
+			if (i <= pos) std::cout << "=";
+			else std::cout << " ";
+		}
+		std::cout << "] " << int(std::min(CurrentProgress * 100.0, MaxProgress)) << "%\r";
+		std::cout.flush();
+	}
+private:
+	double CurrentProgress = 0.0;
+};
 
 constexpr INT MaxDepth = 1;
 constexpr INT NumSamplesPerPixel = 10;
@@ -176,9 +205,9 @@ int Save(const Texture2D<RGBSpectrum>& Image, UINT NumChannels)
 	std::unique_ptr<BYTE[]> Pixels = std::make_unique<BYTE[]>(Image.Width * Image.Height * NumChannels);
 
 	INT index = 0;
-	for (INT y = Image.Height - 1; y >= 0; --y)
+	for (INT y = INT(Image.Height) - 1; y >= 0; --y)
 	{
-		for (INT x = 0; x < Image.Width; ++x)
+		for (INT x = 0; x < INT(Image.Width); ++x)
 		{
 			auto color = Image.GetPixel(x, y);
 			auto ir = int(255.99 * color[0]);
@@ -245,7 +274,6 @@ int main(int argc, char** argv)
 	Camera.AspectRatio = float(Width) / float(Height);
 	Camera.Transform.Translate(0, 5, 0);
 
-
 	static_assert(Width % NumXTiles == 0);
 	static_assert(Height % NumYTiles == 0);
 	constexpr INT WidthIncrement = Width / NumXTiles;
@@ -267,10 +295,17 @@ int main(int argc, char** argv)
 		}
 	}
 
+	constexpr double NewProgress = 100.0 / NumTiles / 100.0;
+
+	ProgressBar ProgressBar;
 	for (auto& Future : Futures)
 	{
+		ProgressBar.Update(NewProgress);
+		ProgressBar.Print();
 		Future.wait();
 	}
+	ProgressBar.Print();
+	std::cout << std::endl;
 
 	FilmTile FilmTiles[NumTiles];
 	for (INT i = 0; i < NumTiles; ++i)
