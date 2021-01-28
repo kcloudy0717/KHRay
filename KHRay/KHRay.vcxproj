@@ -157,7 +157,9 @@ Xcopy "$(SolutionDir)..\Submodules\embree\bin" "$(TargetDir)" /y
   <ItemGroup>
     <ClCompile Include="KHRay\AccelerationStructure.cpp" />
     <ClCompile Include="KHRay\Camera.cpp" />
+    <ClCompile Include="KHRay\Device.cpp" />
     <ClCompile Include="KHRay\main.cpp" />
+    <ClCompile Include="KHRay\Material.cpp" />
     <ClCompile Include="KHRay\Ray.cpp" />
     <ClCompile Include="KHRay\Spectrum.cpp" />
     <ClCompile Include="KHRay\Transform.cpp" />
@@ -165,6 +167,8 @@ Xcopy "$(SolutionDir)..\Submodules\embree\bin" "$(TargetDir)" /y
   <ItemGroup>
     <ClInclude Include="KHRay\AccelerationStructure.h" />
     <ClInclude Include="KHRay\Camera.h" />
+    <ClInclude Include="KHRay\Device.h" />
+    <ClInclude Include="KHRay\Material.h" />
     <ClInclude Include="KHRay\Random.h" />
     <ClInclude Include="KHRay\Ray.h" />
     <ClInclude Include="KHRay\Sampling.h" />

@@ -2,11 +2,16 @@
 #include <memory>
 #include <windows.h>
 
+inline int Flatten2DTo1D(int x, int y, int width)
+{
+	return y * width + x;
+}
+
 template<typename T>
 struct Texture2D
 {
-	Texture2D(UINT64 Width, UINT64 Height)
-		: Width(Width), Height(Height), NumPixels(Width* Height)
+	Texture2D(UINT Width, UINT Height)
+		: Resolution(Width, Height), NumPixels(Width* Height)
 	{
 		Pixels = std::make_unique<T[]>(NumPixels);
 	}
@@ -37,7 +42,7 @@ struct Texture2D
 
 	bool IsWithinBounds(UINT X, UINT Y) const
 	{
-		return (X >= 0 && X < Width) && (Y >= 0 && Y < Height);
+		return (X >= 0 && X < Resolution.x) && (Y >= 0 && Y < Resolution.y);
 	}
 
 	void SetPixel(UINT X, UINT Y, T Color)
@@ -58,5 +63,13 @@ struct Texture2D
 	}
 
 	std::unique_ptr<T[]> Pixels;
-	UINT64 Width, Height, NumPixels;
+	union
+	{
+		DirectX::XMUINT2 Resolution;
+		struct
+		{
+			UINT Width, Height;
+		};
+	};
+	UINT64 NumPixels;
 };

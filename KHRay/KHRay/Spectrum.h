@@ -231,3 +231,9 @@ inline static SampledSpectrum rgbIllum2SpectRed, rgbIllum2SpectGreen;
 inline static SampledSpectrum rgbIllum2SpectBlue;
 
 void InitializeSampledSpectrums();
+
+#ifdef SAMPLED_SPECTRUM
+using Spectrum = SampledSpectrum;
+#else
+using Spectrum = RGBSpectrum;
+#endif

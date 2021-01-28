@@ -4,6 +4,7 @@
 struct Vertex
 {
 	DirectX::XMFLOAT3 Position;
+	DirectX::XMFLOAT2 TextureCoordinate;
 	DirectX::XMFLOAT3 Normal;
 };
 
@@ -46,6 +47,7 @@ inline Vertex BarycentricInterpolation(Vertex v0, Vertex v1, Vertex v2, DirectX:
 {
 	Vertex vertex;
 	vertex.Position = BarycentricInterpolation(v0.Position, v1.Position, v2.Position, barycentric);
+	vertex.TextureCoordinate = BarycentricInterpolation(v0.TextureCoordinate, v1.TextureCoordinate, v2.TextureCoordinate, barycentric);
 	vertex.Normal = BarycentricInterpolation(v0.Normal, v1.Normal, v2.Normal, barycentric);
 
 	return vertex;

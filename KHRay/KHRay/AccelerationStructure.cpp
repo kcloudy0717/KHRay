@@ -1,10 +1,11 @@
 #include "AccelerationStructure.h"
 
 #include <DirectXMath.h>
-using namespace DirectX;
 
 #include "WaveFrontReader.h"
 #include "Utility.h"
+
+using namespace DirectX;
 
 AccelerationStructure::AccelerationStructure(RTCDevice Device)
 	: Device(Device)
@@ -71,6 +72,7 @@ void BottomLevelAccelerationStructure::AddGeometry(const std::filesystem::path& 
 			for (auto [i, v] : enumerate(Reader.vertices))
 			{
 				pVertices[i].Position = v.position;
+				pVertices[i].TextureCoordinate = v.textureCoordinate;
 				pVertices[i].Normal = v.normal;
 			}
 
@@ -107,6 +109,10 @@ void BottomLevelAccelerationStructure::AddGeometry(const std::filesystem::path& 
 		GeometryDescs.push_back(GeometryDesc);
 		Geometries.push_back(Geometry);
 		NumGeometries++;
+	}
+	else
+	{
+		throw std::exception("File DNE");
 	}
 }
 
