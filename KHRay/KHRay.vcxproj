@@ -116,7 +116,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Submodules</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Submodules;KHRay/KHRay</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -158,19 +158,28 @@ Xcopy "$(SolutionDir)..\Submodules\embree\bin" "$(TargetDir)" /y
     <ClCompile Include="KHRay\AccelerationStructure.cpp" />
     <ClCompile Include="KHRay\Camera.cpp" />
     <ClCompile Include="KHRay\Device.cpp" />
+    <ClCompile Include="KHRay\Integrator\Integrator.cpp" />
+    <ClCompile Include="KHRay\Light\Light.cpp" />
     <ClCompile Include="KHRay\main.cpp" />
     <ClCompile Include="KHRay\Material.cpp" />
     <ClCompile Include="KHRay\Ray.cpp" />
+    <ClCompile Include="KHRay\Sampler\Random.cpp" />
+    <ClCompile Include="KHRay\Sampler\Sampler.cpp" />
     <ClCompile Include="KHRay\Spectrum.cpp" />
     <ClCompile Include="KHRay\Transform.cpp" />
+    <ClCompile Include="KHRay\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KHRay\AccelerationStructure.h" />
     <ClInclude Include="KHRay\Camera.h" />
     <ClInclude Include="KHRay\Device.h" />
+    <ClInclude Include="KHRay\Integrator\Integrator.h" />
+    <ClInclude Include="KHRay\Light\Light.h" />
     <ClInclude Include="KHRay\Material.h" />
-    <ClInclude Include="KHRay\Random.h" />
+    <ClInclude Include="KHRay\Math.h" />
     <ClInclude Include="KHRay\Ray.h" />
+    <ClInclude Include="KHRay\Sampler\Random.h" />
+    <ClInclude Include="KHRay\Sampler\Sampler.h" />
     <ClInclude Include="KHRay\Sampling.h" />
     <ClInclude Include="KHRay\Spectrum.h" />
     <ClInclude Include="KHRay\Texture2D.h" />
@@ -178,6 +187,7 @@ Xcopy "$(SolutionDir)..\Submodules\embree\bin" "$(TargetDir)" /y
     <ClInclude Include="KHRay\Utility.h" />
     <ClInclude Include="KHRay\Vertex.h" />
     <ClInclude Include="KHRay\WaveFrontReader.h" />
+    <ClInclude Include="KHRay\Scene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

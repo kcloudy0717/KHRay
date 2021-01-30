@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Integrator">
+      <UniqueIdentifier>{1dfcacde-78b9-4189-889e-2b25dd48079f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Light">
+      <UniqueIdentifier>{f0f2f569-fc4c-4938-acba-de703358231a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sampler">
+      <UniqueIdentifier>{18f244c2-1793-4c1c-a217-5569b26ca85e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="KHRay\main.cpp">
@@ -39,6 +48,21 @@
     <ClCompile Include="KHRay\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="KHRay\Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KHRay\Integrator\Integrator.cpp">
+      <Filter>Source Files\Integrator</Filter>
+    </ClCompile>
+    <ClCompile Include="KHRay\Light\Light.cpp">
+      <Filter>Source Files\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="KHRay\Sampler\Sampler.cpp">
+      <Filter>Source Files\Sampler</Filter>
+    </ClCompile>
+    <ClCompile Include="KHRay\Sampler\Random.cpp">
+      <Filter>Source Files\Sampler</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KHRay\Ray.h">
@@ -54,9 +78,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="KHRay\Transform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="KHRay\Random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="KHRay\Sampling.h">
@@ -79,6 +100,24 @@
     </ClInclude>
     <ClInclude Include="KHRay\Material.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Integrator\Integrator.h">
+      <Filter>Source Files\Integrator</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Light\Light.h">
+      <Filter>Source Files\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Sampler\Sampler.h">
+      <Filter>Source Files\Sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Sampler\Random.h">
+      <Filter>Source Files\Sampler</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -10,13 +10,13 @@ Ray Camera::GetRay(float U, float V) const
 
 	XMVECTOR vPosition = XMLoadFloat3(&Transform.Position);
 
-	XMVECTOR u = Transform.Right();
-	XMVECTOR v = Transform.Up();
-	XMVECTOR w = Transform.Forward();
+	XMVECTOR vU = Transform.Right();
+	XMVECTOR vV = Transform.Up();
+	XMVECTOR vW = Transform.Forward();
 
-	XMVECTOR vHorizontal = viewportWidth * u;
-	XMVECTOR vVertical = viewportHeight * v;
-	XMVECTOR vLowerLeftCorner = vPosition - vHorizontal * 0.5f - vVertical * 0.5f + FocalLength * w;
+	XMVECTOR vHorizontal = viewportWidth * vU;
+	XMVECTOR vVertical = viewportHeight * vV;
+	XMVECTOR vLowerLeftCorner = vPosition - vHorizontal * 0.5f - vVertical * 0.5f + FocalLength * vW;
 
 	XMVECTOR vDirection = XMVector3Normalize(vLowerLeftCorner + U * vHorizontal + V * vVertical - vPosition);
 	

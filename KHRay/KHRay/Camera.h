@@ -2,6 +2,8 @@
 #include "Transform.h"
 #include "Ray.h"
 
+class Sampler;
+
 struct Camera
 {
 	Ray GetRay(float U, float V) const;
@@ -16,6 +18,6 @@ struct Camera
 	float Aperture;
 	float FocalLength = 1;
 	// shutter open/close times
-	float Time0;
-	float Time1;
+	float Time0 = 0;
+	float Time1 = 0;
 };

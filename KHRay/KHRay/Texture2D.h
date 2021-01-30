@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <windows.h>
+#include <DirectXMath.h>
 
 inline int Flatten2DTo1D(int x, int y, int width)
 {
