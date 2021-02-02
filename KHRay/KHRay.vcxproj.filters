@@ -63,6 +63,9 @@
     <ClCompile Include="KHRay\Sampler\Random.cpp">
       <Filter>Source Files\Sampler</Filter>
     </ClCompile>
+    <ClCompile Include="KHRay\Integrator\PathIntegrator.cpp">
+      <Filter>Source Files\Integrator</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KHRay\Ray.h">
@@ -118,6 +121,9 @@
     </ClInclude>
     <ClInclude Include="KHRay\Sampler\Random.h">
       <Filter>Source Files\Sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Integrator\PathIntegrator.h">
+      <Filter>Source Files\Integrator</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

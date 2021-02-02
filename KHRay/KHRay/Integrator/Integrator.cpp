@@ -10,15 +10,15 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
 
-int Save(const Texture2D<RGBSpectrum>& Image, UINT NumChannels)
+int Save(const Texture2D<RGBSpectrum>& Image, int NumChannels)
 {
 	// Saves a input image as a png using stb
 	std::unique_ptr<BYTE[]> Pixels = std::make_unique<BYTE[]>(Image.Width * Image.Height * NumChannels);
 
-	INT index = 0;
-	for (INT y = INT(Image.Height) - 1; y >= 0; --y)
+	int index = 0;
+	for (int y = int(Image.Height) - 1; y >= 0; --y)
 	{
-		for (INT x = 0; x < INT(Image.Width); ++x)
+		for (int x = 0; x < int(Image.Width); ++x)
 		{
 			auto color = Image.GetPixel(x, y);
 			color *= (1.0f / 2.2f); // Gamma correct
@@ -81,29 +81,29 @@ int Integrator::Render(Scene& Scene, Sampler& Sampler)
 	// Multi-threaded tile rendering
 	static_assert(Width % NumXTiles == 0);
 	static_assert(Height % NumYTiles == 0);
-	constexpr INT WidthIncrement = Width / NumXTiles;
-	constexpr INT HeightIncrement = Height / NumYTiles;
+	constexpr int WidthIncrement = Width / NumXTiles;
+	constexpr int HeightIncrement = Height / NumYTiles;
 	std::future<FilmTile> Futures[NumTiles];
-	for (INT y = 0; y < NumYTiles; ++y)
+	for (int y = 0; y < NumYTiles; ++y)
 	{
 		RECT Rect = {};
 		Rect.top = y * HeightIncrement;
 		Rect.bottom = (y + 1) * HeightIncrement;
 
-		for (INT x = 0; x < NumXTiles; ++x)
+		for (int x = 0; x < NumXTiles; ++x)
 		{
 			Rect.left = x * WidthIncrement;
 			Rect.right = (x + 1) * WidthIncrement;
 
-			INT index = y * NumXTiles + x;
+			int index = y * NumXTiles + x;
 			Futures[index] = std::async(std::launch::async, [&]() -> FilmTile
 			{
 				auto pSampler = Sampler.Clone();
 				pSampler->StartPixel(Rect.left, Rect.top);
 				float InvNumSPP = 1.0f / float(pSampler->GetNumSamplesPerPixel());
 
-				INT TileWidth = Rect.right - Rect.left;
-				INT TileHeight = Rect.bottom - Rect.top;
+				int TileWidth = Rect.right - Rect.left;
+				int TileHeight = Rect.bottom - Rect.top;
 
 				FilmTile Tile = {};
 				Tile.Rect = Rect;
@@ -112,12 +112,12 @@ int Integrator::Render(Scene& Scene, Sampler& Sampler)
 				// Render
 				{
 					// For each pixel and pixel sample
-					for (INT y = Rect.top; y < Rect.bottom; ++y)
+					for (int y = Rect.top; y < Rect.bottom; ++y)
 					{
-						for (INT x = Rect.left; x < Rect.right; ++x)
+						for (int x = Rect.left; x < Rect.right; ++x)
 						{
 							Spectrum L(0);
-							for (INT sample = 0; sample < pSampler->GetNumSamplesPerPixel(); ++sample)
+							for (int sample = 0; sample < pSampler->GetNumSamplesPerPixel(); ++sample)
 							{
 								auto sampleJitter = pSampler->Get2D();
 
@@ -126,7 +126,7 @@ int Integrator::Render(Scene& Scene, Sampler& Sampler)
 
 								Ray ray = Scene.Camera.GetRay(u, v);
 
-								L += Li(ray, Scene);
+								L += Li(ray, Scene, *pSampler);
 							}
 
 							L *= InvNumSPP;
@@ -138,8 +138,6 @@ int Integrator::Render(Scene& Scene, Sampler& Sampler)
 
 				return Tile;
 			});
-
-			Futures[index].wait();
 		}
 	}
 
@@ -159,7 +157,7 @@ int Integrator::Render(Scene& Scene, Sampler& Sampler)
 
 	// Get the result of each tile and save it for later
 	FilmTile FilmTiles[NumTiles];
-	for (INT i = 0; i < NumTiles; ++i)
+	for (int i = 0; i < NumTiles; ++i)
 	{
 		FilmTiles[i] = Futures[i].get();
 	}
@@ -168,10 +166,10 @@ int Integrator::Render(Scene& Scene, Sampler& Sampler)
 	Texture2D<RGBSpectrum> Output(Width, Height);
 	for (auto& Tile : FilmTiles)
 	{
-		INT Index = 0;
-		for (INT y = Tile.Rect.top; y < Tile.Rect.bottom; ++y)
+		int Index = 0;
+		for (int y = Tile.Rect.top; y < Tile.Rect.bottom; ++y)
 		{
-			for (INT x = Tile.Rect.left; x < Tile.Rect.right; ++x)
+			for (int x = Tile.Rect.left; x < Tile.Rect.right; ++x)
 			{
 				Output.SetPixel(x, y, Tile.Data[Index]);
 				Index++;
@@ -180,43 +178,4 @@ int Integrator::Render(Scene& Scene, Sampler& Sampler)
 	}
 
 	return Save(Output, NumChannels);
-}
-
-PathIntegrator::PathIntegrator(int MaxDepth)
-	: MaxDepth(MaxDepth)
-{
-
-}
-
-Spectrum PathIntegrator::Li(const Ray& Ray, const Scene& Scene)
-{
-	Spectrum L(0), beta(1);
-
-	for (int bounce = 0; ; ++bounce)
-	{
-		Intersection Intersection = {};
-		bool foundIntersection = Scene.Intersect(Ray, &Intersection);
-
-		if (foundIntersection)
-		{
-			L += beta * Spectrum(Intersection.Normal.x, Intersection.Normal.y, Intersection.Normal.z);
-		}
-		else
-		{
-			float t = 0.5f * (Ray.Direction.y + 1.0f);
-			L += beta * (1.0f - t) * Spectrum(1.0f, 1.0f, 1.0f) + t * Spectrum(0.5f, 0.7f, 1.0f);
-		}
-
-		if (!foundIntersection || bounce >= MaxDepth)
-		{
-			break;
-		}
-	}
-
-	return L;
-}
-
-std::unique_ptr<PathIntegrator> CreatePathIntegrator(int MaxDepth)
-{
-	return std::unique_ptr<PathIntegrator>(new PathIntegrator(MaxDepth));
 }

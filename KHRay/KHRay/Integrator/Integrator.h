@@ -21,29 +21,20 @@ class Integrator
 {
 public:
 	// Tile info for multi threading
-	static constexpr INT NumXTiles = 3;
-	static constexpr INT NumYTiles = 3;
-	static constexpr INT NumTiles = NumXTiles * NumYTiles;
-	static constexpr INT NumChannels = 3;
+	static constexpr int NumXTiles = 3;
+	static constexpr int NumYTiles = 3;
+	static constexpr int NumTiles = NumXTiles * NumYTiles;
+	static constexpr int NumChannels = 3;
 
 	// Output image resolution
-	static constexpr INT Width = 1920;
-	static constexpr INT Height = 1080;
+	static constexpr int Width = 1920;
+	static constexpr int Height = 1080;
 
 	int Render(Scene& Scene, Sampler& Sampler);
 
 	// All integrator inherited needs to implement this method
-	virtual Spectrum Li(const Ray& Ray, const Scene& Scene) = 0;
+	/*
+	*	Sample the incident radiance along the given ray
+	*/
+	virtual Spectrum Li(const Ray& Ray, const Scene& Scene, Sampler& Sampler) = 0;
 };
-
-class PathIntegrator : public Integrator
-{
-public:
-	PathIntegrator(int MaxDepth);
-
-	Spectrum Li(const Ray& Ray, const Scene& Scene) override;
-private:
-	int MaxDepth;
-};
-
-std::unique_ptr<PathIntegrator> CreatePathIntegrator(int MaxDepth);

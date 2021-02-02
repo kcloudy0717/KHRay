@@ -15,20 +15,14 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 
-#include <memory>
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <random>
 #include <filesystem>
-#include <future>
 
 #include "Utility.h"
 #include "Device.h"
 #include "Scene.h"
 #include "Sampler/Sampler.h"
 #include "Sampler/Random.h"
-#include "Integrator/Integrator.h"
+#include "Integrator/PathIntegrator.h"
 
 int main(int argc, char** argv)
 {
@@ -75,7 +69,7 @@ int main(int argc, char** argv)
 	Random Random(NumSamplesPerPixel);
 
 	constexpr int MaxDepth = 1;
-	std::unique_ptr<Integrator> Integrator = CreatePathIntegrator(MaxDepth);
+	auto Integrator = CreatePathIntegrator(MaxDepth);
 
 	return Integrator->Render(Scene, Random);
 }
