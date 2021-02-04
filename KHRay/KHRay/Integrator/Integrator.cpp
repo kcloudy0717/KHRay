@@ -5,7 +5,11 @@
 
 #include <iostream>
 #include <mutex>
+#include <thread>
 #include <future>
+
+#include <ppl.h>
+using namespace concurrency;
 
 #define STBI_MSC_SECURE_CRT
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -48,50 +52,148 @@ int Save(const Texture2D<RGBSpectrum>& Image, int NumChannels)
 	return EXIT_FAILURE;
 }
 
+static int TerminalWidth()
+{
+	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (h == INVALID_HANDLE_VALUE || !h)
+	{
+		fprintf(stderr, "GetStdHandle() call failed");
+		return 80;
+	}
+	CONSOLE_SCREEN_BUFFER_INFO bufferInfo = { 0 };
+	GetConsoleScreenBufferInfo(h, &bufferInfo);
+	return bufferInfo.dwSize.X;
+}
+
 class ProgressReport
 {
 public:
-	ProgressReport(const std::string& Header, int NumJobs)
+	ProgressReport(const std::string& Header, int TotalProgress)
 		: Header(Header)
+		, TotalProgress(TotalProgress)
 	{
-
+		Thread = std::thread([this]()
+		{
+			Print();
+		});
 	}
 
-	bool Done() const
+	~ProgressReport()
 	{
-		return NumJobs < 0;
+		Shutdown = true;
+		Thread.join();
+		printf("\n");
 	}
 
-	void Update(double NewProgress)
+	void Update(int NewProgress = 1)
 	{
 		CurrentProgress += NewProgress;
-		NumJobs--;
 	}
+
 	void Print()
 	{
-		constexpr double BarWidth = 70.0;
-		constexpr double MaxProgress = 100.0;
+		auto barLength = TerminalWidth() - 28;
+		auto totalPlusses = std::max(2, barLength - (int)Header.size());
+		auto progressPrinted = 0;
 
-		std::scoped_lock lk(mutex);
-		std::cout << Header + ": [";
-		double pos = BarWidth * CurrentProgress;
-		for (double i = 0; i < BarWidth; ++i)
+		// Initialize progress string
+		auto bufLen = Header.size() + totalPlusses + 64;
+		std::unique_ptr<char[]> buf(new char[bufLen]);
+		snprintf(buf.get(), bufLen, "\r%s: [", Header.c_str());
+		char* curSpace = buf.get() + strlen(buf.get());
+		char* s = curSpace;
+		for (int i = 0; i < totalPlusses; ++i) *s++ = ' ';
+		*s++ = ']';
+		*s++ = ' ';
+		*s++ = '\0';
+		fputs(buf.get(), stdout);
+		fflush(stdout);
+
+		std::chrono::milliseconds sleepDuration(250);
+		int iterCount = 0;
+		while (!Shutdown)
 		{
-			if (i < pos) std::cout << "=";
-			else std::cout << " ";
+			std::this_thread::sleep_for(sleepDuration);
+
+			// Periodically increase sleepDuration to reduce overhead of
+			// updates.
+			++iterCount;
+			if (iterCount == 10)
+				// Up to 0.5s after ~2.5s elapsed
+				sleepDuration *= 2;
+			else if (iterCount == 70)
+				// Up to 1s after an additional ~30s have elapsed.
+				sleepDuration *= 2;
+			else if (iterCount == 520)
+				// After 15m, jump up to 5s intervals
+				sleepDuration *= 5;
+
+			float percentDone = float(CurrentProgress) / float(TotalProgress);
+			int ProgressNeeded = (int)std::round(totalPlusses * percentDone);
+			while (progressPrinted < ProgressNeeded)
+			{
+				*curSpace++ = '=';
+				++progressPrinted;
+			}
+			fputs(buf.get(), stdout);
+
+			printf(" %i %%", int(std::min(percentDone * 100.0f, 100.0f)));
+
+			fflush(stdout);
 		}
-		std::cout << "] " << int(std::min(CurrentProgress * 100.0, MaxProgress)) << "%\r";
-		std::cout.flush();
 	}
 private:
-	std::mutex mutex;
-	std::atomic<double> CurrentProgress = 0.0;
-	std::atomic<int> NumJobs;
 	std::string Header;
+	std::atomic<int> TotalProgress;
+
+	std::atomic<int> CurrentProgress = 0;
+	std::atomic<bool> Shutdown = false;
+	std::thread Thread;
 };
 
-static constexpr double NewProgress = 100.0 / Integrator::NumTiles / 100.0;
-static ProgressReport s_ProgressReport("Render", Integrator::NumTiles);
+class TileManager
+{
+public:
+	void Initialize(int Width, int Height)
+	{
+		for (int y = 0; y < Height; y += FilmTile::TILE_SIZE)
+		{
+			for (int x = 0; x < Width; x += FilmTile::TILE_SIZE)
+			{
+				int minX = x, minY = y;
+				int maxX = x + FilmTile::TILE_SIZE, maxY = y + FilmTile::TILE_SIZE;
+				maxX = maxX <= Width ? maxX : Width;
+				maxY = maxY <= Height ? maxY : Height;
+
+				FilmTile Tile;
+
+				RECT Rect = { minX, minY, maxX, maxY };
+				int TileWidth = Rect.right - Rect.left;
+				int TileHeight = Rect.bottom - Rect.top;
+
+				Tile.Rect = Rect;
+				Tile.Data.reserve(TileWidth * TileHeight);
+
+				FilmTiles.emplace_back(std::move(Tile));
+			}
+		}
+	}
+
+	FilmTile& operator[](int i)
+	{
+		return FilmTiles[i];
+	}
+
+	auto size() const
+	{
+		return FilmTiles.size();
+	}
+
+	auto begin()  { return FilmTiles.begin(); }
+	auto end() { return FilmTiles.end(); }
+private:
+	std::vector<FilmTile> FilmTiles;
+};
 
 int Integrator::Render(Scene& Scene, Sampler& Sampler)
 {
@@ -99,94 +201,51 @@ int Integrator::Render(Scene& Scene, Sampler& Sampler)
 
 	Scene.Camera.AspectRatio = float(Width) / float(Height);
 
-	s_ProgressReport.Print();
+	TileManager TileManager;
+	TileManager.Initialize(Width, Height);
 
-	// Multi-threaded tile rendering
-	static_assert(Width % NumXTiles == 0);
-	static_assert(Height % NumYTiles == 0);
-	constexpr int WidthIncrement = Width / NumXTiles;
-	constexpr int HeightIncrement = Height / NumYTiles;
-	std::future<FilmTile> Futures[NumTiles];
-	for (int y = 0; y < NumYTiles; ++y)
+	ProgressReport ProgressReport("Render", (int)TileManager.size());
+
+	int NumTiles = (int)TileManager.size();
+	parallel_for(0, NumTiles, [&](int i)
 	{
-		RECT Rect = {};
-		Rect.top = y * HeightIncrement;
-		Rect.bottom = (y + 1) * HeightIncrement;
+		auto& Tile = TileManager[i];
+		auto Rect = Tile.Rect;
 
-		for (int x = 0; x < NumXTiles; ++x)
+		auto pSampler = Sampler.Clone();
+		pSampler->StartPixel(Rect.left, Rect.top);
+
+		// Render
+		// For each pixel and pixel sample
+		for (int y = Rect.top; y < Rect.bottom; ++y)
 		{
-			Rect.left = x * WidthIncrement;
-			Rect.right = (x + 1) * WidthIncrement;
-
-			int index = y * NumXTiles + x;
-			Futures[index] = std::async(std::launch::async, [&, Rect = Rect]() -> FilmTile
+			for (int x = Rect.left; x < Rect.right; ++x)
 			{
-				auto pSampler = Sampler.Clone();
-				pSampler->StartPixel(Rect.left, Rect.top);
-
-				int TileWidth = Rect.right - Rect.left;
-				int TileHeight = Rect.bottom - Rect.top;
-
-				FilmTile Tile = {};
-				Tile.Rect = Rect;
-				Tile.Data.reserve(TileWidth * TileHeight);
-
-				// Render
+				Spectrum L(0);
+				for (int sample = 0; sample < pSampler->GetNumSamplesPerPixel(); ++sample)
 				{
-					// For each pixel and pixel sample
-					for (int y = Rect.top; y < Rect.bottom; ++y)
-					{
-						for (int x = Rect.left; x < Rect.right; ++x)
-						{
-							Spectrum L(0);
-							for (int sample = 0; sample < pSampler->GetNumSamplesPerPixel(); ++sample)
-							{
-								auto sampleJitter = pSampler->Get2D();
+					auto sampleJitter = pSampler->Get2D();
 
-								auto u = (float(x) + sampleJitter.x) / (float(Width) - 1);
-								auto v = (float(y) + sampleJitter.y) / (float(Height) - 1);
+					auto u = (float(x) + sampleJitter.x) / (float(Width) - 1);
+					auto v = (float(y) + sampleJitter.y) / (float(Height) - 1);
 
-								Ray ray = Scene.Camera.GetRay(u, v);
+					Ray ray = Scene.Camera.GetRay(u, v);
 
-								L += Li(ray, Scene, *pSampler);
-							}
-
-							L /= float(pSampler->GetNumSamplesPerPixel());
-
-							Tile.Data.push_back(L);
-						}
-					}
+					L += Li(ray, Scene, *pSampler);
 				}
 
-				s_ProgressReport.Update(NewProgress);
-				s_ProgressReport.Print();
-				return Tile;
-			});
+				L /= float(pSampler->GetNumSamplesPerPixel());
 
-#if !MULTI_THREADED
-			Futures[index].wait();
-#endif
+				Tile.Data.push_back(L);
+			}
 		}
-	}
 
-
-	// Reports the progress of the rendering and waits for each
-	// future
-	while (!s_ProgressReport.Done())
-	{
-	}
-	std::cout << std::endl;
-
-	// Get the result of each tile and save it for later
-	FilmTile FilmTiles[NumTiles];
-	for (int i = 0; i < NumTiles; ++i)
-	{
-		FilmTiles[i] = Futures[i].get();
-	}
+		ProgressReport.Update();
+	});
 
 	// Write per tile data to a output texture and save it on disk
 	Texture2D<RGBSpectrum> Output(Width, Height);
-	for (auto& Tile : FilmTiles)
+	for (auto& Tile : TileManager)
 	{
 		int Index = 0;
 		for (int y = Tile.Rect.top; y < Tile.Rect.bottom; ++y)

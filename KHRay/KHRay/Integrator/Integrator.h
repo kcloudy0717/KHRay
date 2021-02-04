@@ -13,6 +13,8 @@ class Sampler;
 
 struct FilmTile
 {
+	static const int TILE_SIZE = 32;
+
 	RECT Rect;
 	std::vector<Spectrum> Data;
 };
@@ -21,9 +23,6 @@ class Integrator
 {
 public:
 	// Tile info for multi threading
-	static constexpr int NumXTiles = 3;
-	static constexpr int NumYTiles = 3;
-	static constexpr int NumTiles = NumXTiles * NumYTiles;
 	static constexpr int NumChannels = 3;
 
 	// Output image resolution
