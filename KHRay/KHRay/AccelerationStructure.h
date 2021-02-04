@@ -23,6 +23,8 @@ struct RAYTRACING_GEOMETRY_DESC
 	unsigned int* pIndices;
 	size_t NumVertices;
 	size_t NumIndices;
+	bool HasNormals;
+	bool HasTextureCoordinates;
 };
 
 class BottomLevelAccelerationStructure : public AccelerationStructure

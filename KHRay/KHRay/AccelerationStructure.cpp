@@ -1,5 +1,6 @@
 #include "AccelerationStructure.h"
 
+#include <iostream>
 #include <DirectXMath.h>
 
 #include "WaveFrontReader.h"
@@ -38,6 +39,16 @@ void BottomLevelAccelerationStructure::AddGeometry(const std::filesystem::path& 
 	WaveFrontReader<unsigned int> Reader;
 	if (SUCCEEDED(Reader.Load(Path.c_str())))
 	{
+		if (!Reader.hasTexcoords)
+		{
+			std::cout << Path << " does not contain texture coordinates" << std::endl;
+		}
+
+		if (!Reader.hasNormals)
+		{
+			std::cout << Path << " does not contain normals" << std::endl;
+		}
+
 		auto Geometry = rtcNewGeometry(Device, RTC_GEOMETRY_TYPE_TRIANGLE);
 
 		/*
@@ -71,9 +82,9 @@ void BottomLevelAccelerationStructure::AddGeometry(const std::filesystem::path& 
 		{
 			for (auto [i, v] : enumerate(Reader.vertices))
 			{
-				pVertices[i].Position = v.position;
-				pVertices[i].TextureCoordinate = v.textureCoordinate;
-				pVertices[i].Normal = v.normal;
+				pVertices[i].Position = XMLoadFloat3(&v.position);
+				pVertices[i].TextureCoordinate = XMLoadFloat2(&v.textureCoordinate);
+				pVertices[i].Normal = XMLoadFloat3(&v.normal);
 			}
 
 			for (auto [i, index] : enumerate(Reader.indices))
@@ -105,6 +116,8 @@ void BottomLevelAccelerationStructure::AddGeometry(const std::filesystem::path& 
 		GeometryDesc.pIndices = pIndices;
 		GeometryDesc.NumVertices = Reader.vertices.size();
 		GeometryDesc.NumIndices = Reader.indices.size();
+		GeometryDesc.HasNormals = Reader.hasNormals;
+		GeometryDesc.HasTextureCoordinates = Reader.hasTexcoords;
 
 		GeometryDescs.push_back(GeometryDesc);
 		Geometries.push_back(Geometry);

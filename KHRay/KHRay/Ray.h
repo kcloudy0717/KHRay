@@ -1,11 +1,23 @@
 #pragma once
-#include <DirectXMath.h>
 #include <embree/rtcore_ray.h>
+#include "Math.h"
 
 struct Ray
 {
 	Ray() = default;
-	Ray(const DirectX::XMFLOAT3& Origin, const DirectX::XMFLOAT3& Direction, float Time);
+	Ray(const Vector3f& Origin,
+		float TMin,
+		const Vector3f& Direction,
+		float TMax,
+		float Time)
+		: Origin(Origin)
+		, TMin(TMin)
+		, Direction(Direction)
+		, TMax(TMax)
+		, Time(Time)
+	{
+
+	}
 
 	operator RTCRayHit() const
 	{
@@ -16,8 +28,8 @@ struct Ray
 		RTCRayHit.ray.dir_x = Direction.x;
 		RTCRayHit.ray.dir_y = Direction.y;
 		RTCRayHit.ray.dir_z = Direction.z;
-		RTCRayHit.ray.tnear = 0;
-		RTCRayHit.ray.tfar = INFINITY;
+		RTCRayHit.ray.tnear = TMin;
+		RTCRayHit.ray.tfar = TMax;
 		RTCRayHit.ray.mask = -1;
 		RTCRayHit.ray.flags = 0;
 		RTCRayHit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
@@ -25,9 +37,14 @@ struct Ray
 		return RTCRayHit;
 	}
 
-	DirectX::XMVECTOR XM_CALLCONV At(float T);
+	Vector3f At(float T) const
+	{
+		return Origin + Direction * T;
+	}
 
-	DirectX::XMFLOAT3 Origin;
-	DirectX::XMFLOAT3 Direction;
+	Vector3f Origin;
+	float TMin = 0.0f;
+	Vector3f Direction;
+	float TMax = INFINITY;
 	float Time;
 };

@@ -4,7 +4,11 @@
 class PathIntegrator : public Integrator
 {
 public:
-	PathIntegrator(int MaxDepth);
+	PathIntegrator(int MaxDepth)
+		: MaxDepth(MaxDepth)
+	{
+
+	}
 
 	Spectrum Li(const Ray& Ray, const Scene& Scene, Sampler& Sampler) override;
 private:

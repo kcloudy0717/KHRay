@@ -17,7 +17,7 @@ float Random::Get1D()
 	return RNG.nextFloat();
 }
 
-DirectX::XMFLOAT2 Random::Get2D()
+Vector2f Random::Get2D()
 {
 	return { RNG.nextFloat(), RNG.nextFloat() };
 }

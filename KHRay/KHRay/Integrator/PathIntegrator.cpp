@@ -2,24 +2,18 @@
 #include "../Scene.h"
 #include "../Sampler/Sampler.h"
 
-PathIntegrator::PathIntegrator(int MaxDepth)
-	: MaxDepth(MaxDepth)
-{
-
-}
-
 Spectrum PathIntegrator::Li(const Ray& Ray, const Scene& Scene, Sampler& Sampler)
 {
 	Spectrum L(0), beta(1);
 
 	for (int bounce = 0; ; ++bounce)
 	{
-		Intersection Intersection = {};
-		bool foundIntersection = Scene.Intersect(Ray, &Intersection);
+		Intersection intersection = {};
+		bool foundIntersection = Scene.Intersect(Ray, &intersection);
 
 		if (foundIntersection)
 		{
-			L += beta * Spectrum(Intersection.Normal.x, Intersection.Normal.y, Intersection.Normal.z);
+			L += beta * Spectrum(intersection.shFrame.n.x, intersection.shFrame.n.y, intersection.shFrame.n.z);
 		}
 		else
 		{

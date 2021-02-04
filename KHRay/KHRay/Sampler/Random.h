@@ -16,7 +16,7 @@ public:
 	void StartPixel(int x, int y) override;
 
 	float Get1D() override;
-	DirectX::XMFLOAT2 Get2D() override;
+	Vector2f Get2D() override;
 private:
 	pcg32 RNG;
 };

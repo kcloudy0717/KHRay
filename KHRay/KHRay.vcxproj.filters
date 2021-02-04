@@ -36,9 +36,6 @@
     <ClCompile Include="KHRay\Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="KHRay\Ray.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="KHRay\AccelerationStructure.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -65,6 +62,12 @@
     </ClCompile>
     <ClCompile Include="KHRay\Integrator\PathIntegrator.cpp">
       <Filter>Source Files\Integrator</Filter>
+    </ClCompile>
+    <ClCompile Include="KHRay\Integrator\AOIntegrator.cpp">
+      <Filter>Source Files\Integrator</Filter>
+    </ClCompile>
+    <ClCompile Include="KHRay\Sampling.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -116,14 +119,26 @@
     <ClInclude Include="KHRay\Sampler\Sampler.h">
       <Filter>Source Files\Sampler</Filter>
     </ClInclude>
-    <ClInclude Include="KHRay\Math.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="KHRay\Sampler\Random.h">
       <Filter>Source Files\Sampler</Filter>
     </ClInclude>
     <ClInclude Include="KHRay\Integrator\PathIntegrator.h">
       <Filter>Source Files\Integrator</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Integrator\AOIntegrator.h">
+      <Filter>Source Files\Integrator</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Vector2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Vector3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Math.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

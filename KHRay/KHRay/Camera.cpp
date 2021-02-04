@@ -19,12 +19,16 @@ Ray Camera::GetRay(float U, float V) const
 	XMVECTOR vLowerLeftCorner = vPosition - vHorizontal * 0.5f - vVertical * 0.5f + FocalLength * vW;
 
 	XMVECTOR vDirection = XMVector3Normalize(vLowerLeftCorner + U * vHorizontal + V * vVertical - vPosition);
-	
+
 	XMFLOAT3 rayOrigin, rayDirection;
 	XMStoreFloat3(&rayOrigin, vPosition);
 	XMStoreFloat3(&rayDirection, vDirection);
-	
-	return Ray(rayOrigin, rayDirection, 1);
+
+	return Ray({ rayOrigin.x, rayOrigin.y, rayOrigin.z },
+		0.0f,
+		{ rayDirection.x, rayDirection.y, rayDirection.z },
+		INFINITY,
+		1);
 }
 
 void Camera::SetLookAt(DirectX::FXMVECTOR EyePosition, DirectX::FXMVECTOR FocusPosition, DirectX::FXMVECTOR UpDirection)

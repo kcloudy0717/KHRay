@@ -36,5 +36,5 @@ public:
 	/*
 	*	Sample the incident radiance along the given ray
 	*/
-	virtual Spectrum Li(const Ray& Ray, const Scene& Scene, Sampler& Sampler) = 0;
+	virtual Spectrum Li(const Ray& ray, const Scene& scene, Sampler& sampler) = 0;
 };

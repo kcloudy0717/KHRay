@@ -1,19 +1,25 @@
 #pragma once
-#include <DirectXMath.h>
+#include "Math.h"
 
 struct Vertex
 {
-	DirectX::XMFLOAT3 Position;
-	DirectX::XMFLOAT2 TextureCoordinate;
-	DirectX::XMFLOAT3 Normal;
+	Vector3f Position;
+	Vector2f TextureCoordinate;
+	Vector3f Normal;
+
+	void TransformToWorld(DirectX::XMMATRIX M)
+	{
+		Position = XMVector3TransformCoord(Position.ToXMVECTOR(true), M);
+		Normal = XMVector3TransformNormal(Normal.ToXMVECTOR(), M);
+	}
 };
 
-inline float BarycentricInterpolation(float v0, float v1, float v2, DirectX::XMFLOAT3 barycentric)
+inline float BarycentricInterpolation(float v0, float v1, float v2, Vector3f barycentric)
 {
 	return v0 * barycentric.x + v1 * barycentric.y + v2 * barycentric.z;
 }
 
-inline DirectX::XMFLOAT2 BarycentricInterpolation(DirectX::XMFLOAT2 v0, DirectX::XMFLOAT2 v1, DirectX::XMFLOAT2 v2, DirectX::XMFLOAT3 barycentric)
+inline Vector2f BarycentricInterpolation(Vector2f v0, Vector2f v1, Vector2f v2, Vector3f barycentric)
 {
 	return
 	{
@@ -22,7 +28,7 @@ inline DirectX::XMFLOAT2 BarycentricInterpolation(DirectX::XMFLOAT2 v0, DirectX:
 	};
 }
 
-inline DirectX::XMFLOAT3 BarycentricInterpolation(DirectX::XMFLOAT3 v0, DirectX::XMFLOAT3 v1, DirectX::XMFLOAT3 v2, DirectX::XMFLOAT3 barycentric)
+inline Vector3f BarycentricInterpolation(Vector3f v0, Vector3f v1, Vector3f v2, Vector3f barycentric)
 {
 	return
 	{
@@ -32,18 +38,7 @@ inline DirectX::XMFLOAT3 BarycentricInterpolation(DirectX::XMFLOAT3 v0, DirectX:
 	};
 }
 
-inline DirectX::XMFLOAT4 BarycentricInterpolation(DirectX::XMFLOAT4 v0, DirectX::XMFLOAT4 v1, DirectX::XMFLOAT4 v2, DirectX::XMFLOAT3 barycentric)
-{
-	return
-	{
-		BarycentricInterpolation(v0.x, v1.x, v2.x, barycentric),
-		BarycentricInterpolation(v0.y, v1.y, v2.y, barycentric),
-		BarycentricInterpolation(v0.z, v1.z, v2.z, barycentric),
-		BarycentricInterpolation(v0.w, v1.w, v2.w, barycentric)
-	};
-}
-
-inline Vertex BarycentricInterpolation(Vertex v0, Vertex v1, Vertex v2, DirectX::XMFLOAT3 barycentric)
+inline Vertex BarycentricInterpolation(Vertex v0, Vertex v1, Vertex v2, Vector3f barycentric)
 {
 	Vertex vertex;
 	vertex.Position = BarycentricInterpolation(v0.Position, v1.Position, v2.Position, barycentric);

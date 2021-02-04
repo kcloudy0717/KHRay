@@ -1,6 +1,6 @@
 #pragma once
-#include "Transform.h"
 #include "Ray.h"
+#include "Transform.h"
 
 class Sampler;
 

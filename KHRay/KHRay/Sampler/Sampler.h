@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include <DirectXMath.h>
+#include "../Math.h"
 
 class Sampler
 {
@@ -30,7 +30,7 @@ public:
 	virtual void StartPixel(int x, int y) = 0;
 
 	virtual float Get1D() = 0;
-	virtual DirectX::XMFLOAT2 Get2D() = 0;
+	virtual Vector2f Get2D() = 0;
 protected:
 	size_t NumSamplesPerPixel;
 };

@@ -124,6 +124,25 @@ public:
 		return ret;
 	}
 
+	CoefficientSpectrum& operator/=(float a)
+	{
+		for (int i = 0; i < NumSpectrumSamples; ++i)
+		{
+			c[i] /= a;
+		}
+		return *this;
+	}
+
+	CoefficientSpectrum operator/(float a) const
+	{
+		CoefficientSpectrum ret = *this;
+		for (int i = 0; i < NumSpectrumSamples; ++i)
+		{
+			ret.c[i] /= a;
+		}
+		return ret;
+	}
+
 	CoefficientSpectrum Clamp(float low = 0, float high = INFINITY) const
 	{
 		CoefficientSpectrum ret;

@@ -23,6 +23,7 @@
 #include "Sampler/Sampler.h"
 #include "Sampler/Random.h"
 #include "Integrator/PathIntegrator.h"
+#include "Integrator/AOIntegrator.h"
 
 int main(int argc, char** argv)
 {
@@ -40,17 +41,17 @@ int main(int argc, char** argv)
 	Scene Scene(Device);
 	Scene.Camera.Transform.Translate(0, 5, 0);
 
-	/*BottomLevelAccelerationStructure BurrPuzzle(Device);
-	BurrPuzzle.AddGeometry(ModelFolderPath / "BurrPuzzle.obj");
-	BurrPuzzle.Generate();
+	//BottomLevelAccelerationStructure BurrPuzzle(Device);
+	//BurrPuzzle.AddGeometry(ModelFolderPath / "BurrPuzzle.obj");
+	//BurrPuzzle.Generate();
 
-	RAYTRACING_INSTANCE_DESC BurrPuzzleInstance = {};
-	BurrPuzzleInstance.Transform.SetScale(20, 20, 20);
-	BurrPuzzleInstance.Transform.Translate(0, 0, 2);
-	BurrPuzzleInstance.Transform.Rotate(0, 30.0_Deg, 0);
-	BurrPuzzleInstance.pBLAS = &BurrPuzzle;
+	//RAYTRACING_INSTANCE_DESC BurrPuzzleInstance = {};
+	//BurrPuzzleInstance.Transform.SetScale(20, 20, 20);
+	//BurrPuzzleInstance.Transform.Translate(0, 5, 5);
+	//BurrPuzzleInstance.Transform.Rotate(0, 30.0_Deg, 0);
+	//BurrPuzzleInstance.pBLAS = &BurrPuzzle;
 
-	g_Scene.AddBottomLevelAccelerationStructure(BurrPuzzleInstance);*/
+	//Scene.AddBottomLevelAccelerationStructure(BurrPuzzleInstance);
 
 	BottomLevelAccelerationStructure BreakfastRoom(Device);
 	BreakfastRoom.AddGeometry(ModelFolderPath / "breakfast_room" / "breakfast_room.obj");
@@ -63,13 +64,15 @@ int main(int argc, char** argv)
 	BreakfastRoomInstance.pBLAS = &BreakfastRoom;
 
 	Scene.AddBottomLevelAccelerationStructure(BreakfastRoomInstance);
-	Scene.Generate();
 
-	constexpr int NumSamplesPerPixel = 10;
+	constexpr int NumSamplesPerPixel = 8;
 	Random Random(NumSamplesPerPixel);
 
-	constexpr int MaxDepth = 1;
-	auto Integrator = CreatePathIntegrator(MaxDepth);
+	//constexpr int MaxDepth = 1;
+	//auto Integrator = CreatePathIntegrator(MaxDepth);
+
+	constexpr int NumSamples = 64;
+	auto Integrator = CreateAOIntegrator(NumSamples);
 
 	return Integrator->Render(Scene, Random);
 }
