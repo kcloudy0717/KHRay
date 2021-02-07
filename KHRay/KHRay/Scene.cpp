@@ -1,9 +1,11 @@
 #include "Scene.h"
 #include "Device.h"
 
+constexpr float ShadowEpsilon = 0.0001f;
+
 Ray Interaction::SpawnRay(const Vector3f& d) const
 {
-	return Ray(p, 0.01f, Normalize(d), INFINITY);
+	return Ray(p, 0.0001f, Normalize(d), INFINITY);
 }
 
 Ray Interaction::SpawnRayTo(const Interaction& Interaction) const
@@ -12,7 +14,7 @@ Ray Interaction::SpawnRayTo(const Interaction& Interaction) const
 	float tmax = d.Length();
 	d = Normalize(d);
 
-	return Ray(p, 0.01f, d, tmax);
+	return Ray(p, 0.0001f, d, tmax - ShadowEpsilon);
 }
 
 bool VisibilityTester::Unoccluded(const Scene& Scene) const

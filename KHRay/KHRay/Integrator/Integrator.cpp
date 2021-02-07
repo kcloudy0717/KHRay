@@ -23,6 +23,7 @@ using namespace concurrency;
 
 #define DEBUG_X 890
 #define DEBUG_Y 260
+static bool DEBUG_PIXEL = false;
 
 int Save(const Texture2D<RGBSpectrum>& Image, int NumChannels)
 {
@@ -186,7 +187,7 @@ int Integrator::Render(const Scene& Scene, const Sampler& Sampler)
 			{
 				if (x == DEBUG_X && y == DEBUG_Y)
 				{
-					printf("[%i, %i]", x, y);
+					DEBUG_PIXEL = true;
 				}
 
 				Spectrum L(0);

@@ -39,7 +39,8 @@ int main(int argc, char** argv)
 
 	Device Device;
 	Scene Scene(Device);
-	Scene.Camera.Transform.Translate(0, 6, 0);
+	Scene.Camera.Transform.Translate(0, 10, 5);
+	Scene.Camera.Transform.Rotate(30.0_Deg, 0, 0);
 
 	BSDF Matte;
 	Matte.Add(std::make_shared<LambertianReflection>(0.5f));
