@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include <memory>
 #include <vector>
+#include <mutex>
 
 #include "../Spectrum.h"
 
@@ -34,21 +35,22 @@ public:
 				maxX = maxX <= Width ? maxX : Width;
 				maxY = maxY <= Height ? maxY : Height;
 
-				FilmTile Tile;
+				FilmTile tile;
 
-				RECT Rect = { minX, minY, maxX, maxY };
-				int TileWidth = Rect.right - Rect.left;
-				int TileHeight = Rect.bottom - Rect.top;
+				RECT rect = { minX, minY, maxX, maxY };
+				printf("[%i, %i] x [%i, %i]\n", minX, minY, maxX, maxY);
+				int TileWidth = rect.right - rect.left;
+				int TileHeight = rect.bottom - rect.top;
 
-				Tile.Rect = Rect;
-				Tile.Data.reserve(size_t(TileWidth) * size_t(TileHeight));
+				tile.Rect = rect;
+				tile.Data.reserve(size_t(TileWidth) * size_t(TileHeight));
 
-				FilmTiles.emplace_back(std::move(Tile));
+				FilmTiles.emplace_back(std::move(tile));
 			}
 		}
 	}
 
-	FilmTile& operator[](int i)
+	auto& operator[](int i)
 	{
 		return FilmTiles[i];
 	}
@@ -71,8 +73,7 @@ public:
 	static constexpr int Height = 1080;
 
 	void Initialize(Scene& Scene);
-	void Render(const Scene& Scene, const Sampler& Sampler);
-	int Shutdown();
+	int Render(const Scene& Scene, const Sampler& Sampler);
 
 	// All integrator inherited needs to implement this method
 	/*

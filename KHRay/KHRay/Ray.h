@@ -46,33 +46,5 @@ struct Ray
 	float TMin = 0.0f;
 	Vector3f Direction;
 	float TMax = INFINITY;
-	float Time = 0.0f;
+	float Time;
 };
-
-// https://github.com/mmp/pbrt-v3/blob/master/src/core/pbrt.h
-inline Vector3f OffsetRayOrigin(const Vector3f& p, const Vector3f& pError,
-	const Vector3f& n, const Vector3f& w)
-{
-	float d = Dot(Abs(n), pError);
-	Vector3f offset = d * Vector3f(n);
-	if (Dot(w, n) < 0)
-	{
-		offset = -offset;
-	}
-
-	Vector3f po = p + offset;
-
-	for (int i = 0; i < 3; ++i)
-	{
-		if (offset[i] > 0)
-		{
-			po[i] = NextFloatUp(po[i]);
-		}
-		else if (offset[i] < 0)
-		{
-			po[i] = NextFloatDown(po[i]);
-		}
-	}
-
-	return po;
-}

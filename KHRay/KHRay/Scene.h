@@ -59,7 +59,7 @@ struct SurfaceInteraction : Interaction
 	Vector2f uv; // Texture coord
 	OrthonormalBasis GeometryBasis;
 	OrthonormalBasis ShadingBasis;
-	BSDF* BSDF;
+	BSDF BSDF;
 };
 
 struct VisibilityTester

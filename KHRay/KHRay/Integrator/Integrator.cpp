@@ -16,10 +16,13 @@ using namespace concurrency;
 #include <stb/stb_image_write.h>
 
 #ifdef _DEBUG
-#define MULTI_THREADED 0
+#define MULTI_THREADED 1
 #else
 #define MULTI_THREADED 1
 #endif
+
+#define DEBUG_X 890
+#define DEBUG_Y 260
 
 int Save(const Texture2D<RGBSpectrum>& Image, int NumChannels)
 {
@@ -164,7 +167,7 @@ void Integrator::Initialize(Scene& Scene)
 	Scene.Generate();
 }
 
-void Integrator::Render(const Scene& Scene, const Sampler& Sampler)
+int Integrator::Render(const Scene& Scene, const Sampler& Sampler)
 {
 	ProgressReport ProgressReport("Render", (int)TileManager.size());
 
@@ -181,7 +184,12 @@ void Integrator::Render(const Scene& Scene, const Sampler& Sampler)
 		{
 			for (int x = Rect.left; x < Rect.right; ++x)
 			{
-				Spectrum L(0.0f);
+				if (x == DEBUG_X && y == DEBUG_Y)
+				{
+					printf("[%i, %i]", x, y);
+				}
+
+				Spectrum L(0);
 				for (int sample = 0; sample < pSampler->GetNumSamplesPerPixel(); ++sample)
 				{
 					auto sampleJitter = pSampler->Get2D();
@@ -208,25 +216,22 @@ void Integrator::Render(const Scene& Scene, const Sampler& Sampler)
 		Process(tile);
 	});
 #else
-	for (auto& Tile : TileManager)
+	for (auto& tile : TileManager)
 	{
-		Process(Tile);
+		Process(tile);
 	}
 #endif
-}
 
-int Integrator::Shutdown()
-{
 	// Write per tile data to a output texture and save it on disk
 	Texture2D<RGBSpectrum> Output(Width, Height);
-	for (auto& Tile : TileManager)
+	for (auto& tile : TileManager)
 	{
 		int Index = 0;
-		for (int y = Tile.Rect.top; y < Tile.Rect.bottom; ++y)
+		for (int y = tile.Rect.top; y < tile.Rect.bottom; ++y)
 		{
-			for (int x = Tile.Rect.left; x < Tile.Rect.right; ++x)
+			for (int x = tile.Rect.left; x < tile.Rect.right; ++x)
 			{
-				Output.SetPixel(x, y, Tile.Data[Index]);
+				Output.SetPixel(x, y, tile.Data[Index]);
 				Index++;
 			}
 		}
@@ -250,8 +255,8 @@ Spectrum EstimateDirect(const SurfaceInteraction& Interaction,
 		// Compute BSDF's value for light sample
 		Spectrum f;
 		// Evaluate BSDF for light sampling strategy
-		f = Interaction.BSDF->f(Interaction.wo, wi) * AbsDot(wi, Interaction.ShadingBasis.n);
-		scatteringPdf = Interaction.BSDF->Pdf(Interaction.wo, wi);
+		f = Interaction.BSDF.f(Interaction.wo, wi) * AbsDot(wi, Interaction.ShadingBasis.n);
+		scatteringPdf = Interaction.BSDF.Pdf(Interaction.wo, wi);
 
 		if (!f.IsBlack())
 		{

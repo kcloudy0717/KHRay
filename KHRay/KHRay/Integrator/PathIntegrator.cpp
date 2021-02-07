@@ -19,7 +19,7 @@ Spectrum PathIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 
 		// Sample illumination from lights to find path contribution.
 		// (But skip this for perfectly specular BSDFs.)
-		if (interaction.BSDF->NumComponents(BxDF::Type(BxDF::BSDF_All & ~BxDF::BSDF_Specular)) > 0)
+		if (interaction.BSDF.NumComponents(BxDF::Type(BxDF::BSDF_All & ~BxDF::BSDF_Specular)) > 0)
 		{
 			L += UniformSampleOneLight(interaction, scene, sampler);
 		}
@@ -27,7 +27,7 @@ Spectrum PathIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 		// Sample BSDF to get new path direction
 		Vector3f wo = -ray.Direction, wi;
 		float pdf;
-		Spectrum f = interaction.BSDF->Samplef(wo, &wi, sampler.Get2D(), &pdf);
+		Spectrum f = interaction.BSDF.Samplef(wo, &wi, sampler.Get2D(), &pdf);
 
 		if (f.IsBlack() || pdf == 0.0f)
 		{

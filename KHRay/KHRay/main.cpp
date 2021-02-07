@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 
 	Device Device;
 	Scene Scene(Device);
-	Scene.Camera.Transform.Translate(0, 5, 0);
+	Scene.Camera.Transform.Translate(0, 6, 0);
 
 	BSDF Matte;
 	Matte.Add(std::make_shared<LambertianReflection>(0.5f));
@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 	BurrPuzzleInstance.pBSDF = &Matte;
 	BurrPuzzleInstance.pBLAS = &BurrPuzzle;
 	Scene.AddBottomLevelAccelerationStructure(BurrPuzzleInstance);*/
-	
+
 	BottomLevelAccelerationStructure BreakfastRoom(Device);
 	BreakfastRoom.AddGeometry(ModelFolderPath / "breakfast_room" / "breakfast_room.obj");
 	BreakfastRoom.Generate();
@@ -68,7 +68,7 @@ int main(int argc, char** argv)
 	BreakfastRoomInstance.pBLAS = &BreakfastRoom;
 	Scene.AddBottomLevelAccelerationStructure(BreakfastRoomInstance);
 
-	PointLight PL0(1000.0f);
+	PointLight PL0(Spectrum(216.0f / 255.0f, 247.0f / 255.0f, 255.0f / 255.0f) * 1000.0f);
 	PL0.Transform.Translate(3, 15, 20);
 	Scene.AddLight(&PL0);
 
@@ -83,11 +83,6 @@ int main(int argc, char** argv)
 	int MaxDepth = 5;
 	auto Integrator = CreatePathIntegrator(MaxDepth);
 
-	if (Integrator)
-	{
-		Integrator->Initialize(Scene);
-		Integrator->Render(Scene, Random);
-		return Integrator->Shutdown();
-	}
-	return EXIT_FAILURE;
+	Integrator->Initialize(Scene);
+	return Integrator->Render(Scene, Random);
 }

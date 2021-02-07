@@ -1,29 +1,18 @@
 #include "Scene.h"
 #include "Device.h"
 
-using namespace DirectX;
-
-constexpr float ShadowEpsilon = 0.0001f;
-constexpr float EPSILON = std::numeric_limits<float>::epsilon();
-static Vector3f vEPSILON(EPSILON);
-
 Ray Interaction::SpawnRay(const Vector3f& d) const
 {
-	Vector3f o = OffsetRayOrigin(p, vEPSILON, n, d);
-	return Ray(o, 0.0f, d, INFINITY);
+	return Ray(p, 0.01f, Normalize(d), INFINITY);
 }
 
 Ray Interaction::SpawnRayTo(const Interaction& Interaction) const
 {
-	if (this != &Interaction)
-	{
-		Vector3f origin = OffsetRayOrigin(p, vEPSILON, n, Interaction.p - p);
-		Vector3f target = OffsetRayOrigin(Interaction.p, vEPSILON, Interaction.n, origin - Interaction.p);
-		Vector3f d = target - origin;
-		return Ray(origin, 0.1f, d, 1.0f - ShadowEpsilon);
-	}
+	Vector3f d = Interaction.p - p;
+	float tmax = d.Length();
+	d = Normalize(d);
 
-	return {};
+	return Ray(p, 0.01f, d, tmax);
 }
 
 bool VisibilityTester::Unoccluded(const Scene& Scene) const
@@ -67,6 +56,8 @@ bool Scene::Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) c
 
 	if (pSurfaceInteraction)
 	{
+		using namespace DirectX;
+
 		const auto& hit = RTCRayHit.hit;
 		auto Instance = TopLevelAccelerationStructure[hit.geomID];
 		auto GeometryDesc = (*Instance.pBLAS)[hit.instID[0]];
@@ -108,8 +99,8 @@ bool Scene::Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) c
 		}
 
 		// Update BSDF's internal data
-		pSurfaceInteraction->Instance.pBSDF->SetInteraction(*pSurfaceInteraction);
-		pSurfaceInteraction->BSDF = pSurfaceInteraction->Instance.pBSDF;
+		pSurfaceInteraction->BSDF = pSurfaceInteraction->Instance.pBSDF->Clone();
+		pSurfaceInteraction->BSDF.SetInteraction(*pSurfaceInteraction);
 	}
 
 	return true;

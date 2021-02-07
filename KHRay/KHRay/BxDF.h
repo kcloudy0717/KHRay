@@ -106,6 +106,11 @@ struct BSDF
 		return Num;
 	}
 
+	BSDF Clone()
+	{
+		return *this;
+	}
+
 	void SetInteraction(const SurfaceInteraction& Interaction);
 
 	Vector3f WorldToLocal(const Vector3f& v) const

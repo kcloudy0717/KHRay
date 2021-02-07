@@ -140,6 +140,7 @@ Xcopy "$(SolutionDir)..\Submodules\embree\bin" "$(TargetDir)" /y
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../Submodules; </AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
