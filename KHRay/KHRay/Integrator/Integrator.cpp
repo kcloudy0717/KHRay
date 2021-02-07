@@ -32,7 +32,7 @@ int Save(const Texture2D<RGBSpectrum>& Image, int NumChannels)
 		for (int x = 0; x < int(Image.Width); ++x)
 		{
 			auto color = Image.GetPixel(x, y);
-			//color *= (1.0f / 2.2f); // Gamma correct
+			color = color.Sqrt(); // Gamma correct approx
 
 			auto ir = int(255.99 * color[0]);
 			auto ig = int(255.99 * color[1]);
@@ -44,25 +44,17 @@ int Save(const Texture2D<RGBSpectrum>& Image, int NumChannels)
 		}
 	}
 
-	if (stbi_write_png("Output.png", Image.Width, Image.Height, 3, Pixels.get(), Image.Width * NumChannels))
+#ifdef _DEBUG
+	const char* Name = "Debug.png";
+#else
+	const char* Name = "Release.png";
+#endif
+	if (stbi_write_png(Name, Image.Width, Image.Height, 3, Pixels.get(), Image.Width * NumChannels))
 	{
 		return EXIT_SUCCESS;
 	}
 
 	return EXIT_FAILURE;
-}
-
-static int TerminalWidth()
-{
-	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
-	if (h == INVALID_HANDLE_VALUE || !h)
-	{
-		fprintf(stderr, "GetStdHandle() call failed");
-		return 80;
-	}
-	CONSOLE_SCREEN_BUFFER_INFO bufferInfo = { 0 };
-	GetConsoleScreenBufferInfo(h, &bufferInfo);
-	return bufferInfo.dwSize.X;
 }
 
 class ProgressReport
@@ -83,6 +75,19 @@ public:
 		Shutdown = true;
 		Thread.join();
 		printf("\n");
+	}
+
+	static int TerminalWidth()
+	{
+		HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+		if (h == INVALID_HANDLE_VALUE || !h)
+		{
+			fprintf(stderr, "GetStdHandle() call failed");
+			return 80;
+		}
+		CONSOLE_SCREEN_BUFFER_INFO bufferInfo = { 0 };
+		GetConsoleScreenBufferInfo(h, &bufferInfo);
+		return bufferInfo.dwSize.X;
 	}
 
 	void Update(int NewProgress = 1)
@@ -151,65 +156,20 @@ private:
 	std::thread Thread;
 };
 
-class TileManager
+void Integrator::Initialize(Scene& Scene)
 {
-public:
-	void Initialize(int Width, int Height)
-	{
-		for (int y = 0; y < Height; y += FilmTile::TILE_SIZE)
-		{
-			for (int x = 0; x < Width; x += FilmTile::TILE_SIZE)
-			{
-				int minX = x, minY = y;
-				int maxX = x + FilmTile::TILE_SIZE, maxY = y + FilmTile::TILE_SIZE;
-				maxX = maxX <= Width ? maxX : Width;
-				maxY = maxY <= Height ? maxY : Height;
-
-				FilmTile Tile;
-
-				RECT Rect = { minX, minY, maxX, maxY };
-				int TileWidth = Rect.right - Rect.left;
-				int TileHeight = Rect.bottom - Rect.top;
-
-				Tile.Rect = Rect;
-				Tile.Data.reserve(TileWidth * TileHeight);
-
-				FilmTiles.emplace_back(std::move(Tile));
-			}
-		}
-	}
-
-	FilmTile& operator[](int i)
-	{
-		return FilmTiles[i];
-	}
-
-	auto size() const
-	{
-		return FilmTiles.size();
-	}
-
-	auto begin()  { return FilmTiles.begin(); }
-	auto end() { return FilmTiles.end(); }
-private:
-	std::vector<FilmTile> FilmTiles;
-};
-
-int Integrator::Render(Scene& Scene, Sampler& Sampler)
-{
-	Scene.Generate();
-
-	Scene.Camera.AspectRatio = float(Width) / float(Height);
-
-	TileManager TileManager;
 	TileManager.Initialize(Width, Height);
 
+	Scene.Camera.AspectRatio = float(Width) / float(Height);
+	Scene.Generate();
+}
+
+void Integrator::Render(const Scene& Scene, const Sampler& Sampler)
+{
 	ProgressReport ProgressReport("Render", (int)TileManager.size());
 
-	int NumTiles = (int)TileManager.size();
-	parallel_for(0, NumTiles, [&](int i)
+	auto Process = [&](FilmTile& Tile)
 	{
-		auto& Tile = TileManager[i];
 		auto Rect = Tile.Rect;
 
 		auto pSampler = Sampler.Clone();
@@ -221,7 +181,7 @@ int Integrator::Render(Scene& Scene, Sampler& Sampler)
 		{
 			for (int x = Rect.left; x < Rect.right; ++x)
 			{
-				Spectrum L(0);
+				Spectrum L(0.0f);
 				for (int sample = 0; sample < pSampler->GetNumSamplesPerPixel(); ++sample)
 				{
 					auto sampleJitter = pSampler->Get2D();
@@ -241,8 +201,22 @@ int Integrator::Render(Scene& Scene, Sampler& Sampler)
 		}
 
 		ProgressReport.Update();
+	};
+#if MULTI_THREADED
+	parallel_for_each(TileManager.begin(), TileManager.end(), [&](auto& tile)
+	{
+		Process(tile);
 	});
+#else
+	for (auto& Tile : TileManager)
+	{
+		Process(Tile);
+	}
+#endif
+}
 
+int Integrator::Shutdown()
+{
 	// Write per tile data to a output texture and save it on disk
 	Texture2D<RGBSpectrum> Output(Width, Height);
 	for (auto& Tile : TileManager)
@@ -259,4 +233,70 @@ int Integrator::Render(Scene& Scene, Sampler& Sampler)
 	}
 
 	return Save(Output, NumChannels);
+}
+
+Spectrum EstimateDirect(const SurfaceInteraction& Interaction,
+	const Light& Light, const Vector2f& XiLight,
+	const Scene& Scene, Sampler& Sampler)
+{
+	Spectrum Ld(0.0f);
+	// Sample light source with multiple importance sampling
+	Vector3f wi;
+	float lightPdf = 0.0f, scatteringPdf = 0.0f;
+	VisibilityTester visibility;
+	Spectrum Li = Light.SampleLi(Interaction, XiLight, &wi, &lightPdf, &visibility);
+	if (lightPdf > 0.0f && !Li.IsBlack())
+	{
+		// Compute BSDF's value for light sample
+		Spectrum f;
+		// Evaluate BSDF for light sampling strategy
+		f = Interaction.BSDF->f(Interaction.wo, wi) * AbsDot(wi, Interaction.ShadingBasis.n);
+		scatteringPdf = Interaction.BSDF->Pdf(Interaction.wo, wi);
+
+		if (!f.IsBlack())
+		{
+			if (!visibility.Unoccluded(Scene))
+			{
+				Li = Spectrum(0.0f);
+			}
+
+			// Add light's contribution to reflected radiance
+			if (!Li.IsBlack())
+			{
+				if (Light.IsDeltaLight())
+				{
+					Ld += f * Li / lightPdf;
+				}
+				else
+				{
+					float weight = PowerHeuristic(1, lightPdf, 1, scatteringPdf);
+					Ld += f * Li * weight / lightPdf;
+				}
+			}
+		}
+	}
+
+	return Ld;
+}
+
+Spectrum Integrator::UniformSampleOneLight(const SurfaceInteraction& Interaction, const Scene& scene, Sampler& sampler)
+{
+	if (scene.Lights.empty())
+	{
+		return Spectrum(0.0f);
+	}
+
+	int numLights = (int)scene.Lights.size();
+
+	int lightIndex;
+	float lightPdf;
+
+	lightIndex = std::min((int)(sampler.Get1D() * numLights), numLights - 1);
+	lightPdf = 1.0f / float(numLights);
+
+	const auto pLight = scene.Lights[lightIndex];
+
+	Vector2f Xi = sampler.Get2D();
+
+	return EstimateDirect(Interaction, *pLight, Xi, scene, sampler) / lightPdf;
 }

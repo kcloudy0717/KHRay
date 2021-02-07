@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "../Math.h"
+#include "../Sampling.h"
 
 class Sampler
 {

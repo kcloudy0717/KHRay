@@ -3,13 +3,41 @@
 
 using namespace DirectX;
 
+constexpr float ShadowEpsilon = 0.0001f;
+constexpr float EPSILON = std::numeric_limits<float>::epsilon();
+static Vector3f vEPSILON(EPSILON);
+
+Ray Interaction::SpawnRay(const Vector3f& d) const
+{
+	Vector3f o = OffsetRayOrigin(p, vEPSILON, n, d);
+	return Ray(o, 0.0f, d, INFINITY);
+}
+
+Ray Interaction::SpawnRayTo(const Interaction& Interaction) const
+{
+	if (this != &Interaction)
+	{
+		Vector3f origin = OffsetRayOrigin(p, vEPSILON, n, Interaction.p - p);
+		Vector3f target = OffsetRayOrigin(Interaction.p, vEPSILON, Interaction.n, origin - Interaction.p);
+		Vector3f d = target - origin;
+		return Ray(origin, 0.1f, d, 1.0f - ShadowEpsilon);
+	}
+
+	return {};
+}
+
+bool VisibilityTester::Unoccluded(const Scene& Scene) const
+{
+	return !Scene.Intersect(I0.SpawnRayTo(I1), nullptr);
+}
+
 Scene::Scene(const Device& Device)
 	: TopLevelAccelerationStructure(Device)
 {
 
 }
 
-bool Scene::Intersect(const Ray& Ray, Intersection* pIntersection) const
+bool Scene::Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) const
 {
 	/*
 	* The intersect context can be used to set intersection
@@ -37,7 +65,7 @@ bool Scene::Intersect(const Ray& Ray, Intersection* pIntersection) const
 		return false;
 	}
 
-	if (pIntersection)
+	if (pSurfaceInteraction)
 	{
 		const auto& hit = RTCRayHit.hit;
 		auto Instance = TopLevelAccelerationStructure[hit.geomID];
@@ -49,32 +77,39 @@ bool Scene::Intersect(const Ray& Ray, Intersection* pIntersection) const
 		unsigned int idx1 = GeometryDesc.pIndices[hit.primID * 3 + 1];
 		unsigned int idx2 = GeometryDesc.pIndices[hit.primID * 3 + 2];
 
+		// Fectch vertices and transform them into instance's Transform
 		Vertex vtx0 = GeometryDesc.pVertices[idx0]; vtx0.TransformToWorld(mMatrix);
 		Vertex vtx1 = GeometryDesc.pVertices[idx1]; vtx1.TransformToWorld(mMatrix);
 		Vertex vtx2 = GeometryDesc.pVertices[idx2]; vtx2.TransformToWorld(mMatrix);
 
-		Vector3f barycentrics = { 1.f - hit.u - hit.v, hit.u, hit.v };
-		Vertex Vertex = BarycentricInterpolation(vtx0, vtx1, vtx2, barycentrics);
-
-		pIntersection->Instance = Instance;
-		pIntersection->p = Ray.At(RTCRayHit.ray.tfar);
-		pIntersection->uv = Vertex.TextureCoordinate;
-
 		auto p0 = vtx0.Position, p1 = vtx1.Position, p2 = vtx2.Position;
+		// Compute 2 edges of the triangle
 		auto e0 = p1 - p0;
 		auto e1 = p2 - p0;
-		auto Ng = Normalize(Cross(e0, e1));
+		auto n = Normalize(Cross(e0, e1));
 
-		pIntersection->geoFrame = ONB(Ng);
+		Vector3f barycentrics = { 1.f - hit.u - hit.v, hit.u, hit.v };
+		Vertex interpolatedV = BarycentricInterpolation(vtx0, vtx1, vtx2, barycentrics);
+
+		pSurfaceInteraction->p = Ray.At(RTCRayHit.ray.tfar);
+		pSurfaceInteraction->wo = -Ray.Direction;
+		pSurfaceInteraction->n = n;
+		pSurfaceInteraction->uv = interpolatedV.TextureCoordinate;
+
+		pSurfaceInteraction->Instance = Instance;
+
+		// Compute geometry basis and shading basis
+		pSurfaceInteraction->GeometryBasis = pSurfaceInteraction->ShadingBasis = OrthonormalBasis(n);
+
 		if (GeometryDesc.HasNormals)
 		{
-			auto Ns = Normalize(Vertex.Normal);
-			pIntersection->shFrame = ONB(Ns);
-		}	
-		else
-		{
-			pIntersection->shFrame = pIntersection->geoFrame;
+			auto Ns = Normalize(interpolatedV.Normal);
+			pSurfaceInteraction->ShadingBasis = OrthonormalBasis(Ns);
 		}
+
+		// Update BSDF's internal data
+		pSurfaceInteraction->Instance.pBSDF->SetInteraction(*pSurfaceInteraction);
+		pSurfaceInteraction->BSDF = pSurfaceInteraction->Instance.pBSDF;
 	}
 
 	return true;

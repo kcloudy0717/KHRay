@@ -27,9 +27,6 @@
     <ClCompile Include="KHRay\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="KHRay\Spectrum.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="KHRay\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -40,9 +37,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="KHRay\Device.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="KHRay\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="KHRay\Scene.cpp">
@@ -68,6 +62,15 @@
     </ClCompile>
     <ClCompile Include="KHRay\Sampling.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KHRay\Spectrum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KHRay\BxDF.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KHRay\Integrator\NormalIntegrator.cpp">
+      <Filter>Source Files\Integrator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -104,9 +107,6 @@
     <ClInclude Include="KHRay\Device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="KHRay\Material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="KHRay\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -134,11 +134,14 @@
     <ClInclude Include="KHRay\Vector3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="KHRay\Matrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="KHRay\Math.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\BxDF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Integrator\NormalIntegrator.h">
+      <Filter>Source Files\Integrator</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

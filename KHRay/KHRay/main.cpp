@@ -22,8 +22,9 @@
 #include "Scene.h"
 #include "Sampler/Sampler.h"
 #include "Sampler/Random.h"
-#include "Integrator/PathIntegrator.h"
+#include "Integrator/NormalIntegrator.h"
 #include "Integrator/AOIntegrator.h"
+#include "Integrator/PathIntegrator.h"
 
 int main(int argc, char** argv)
 {
@@ -31,7 +32,6 @@ int main(int argc, char** argv)
 	ENABLE_LEAK_DETECTION();
 	SET_LEAK_BREAKPOINT(-1);
 #endif
-
 	std::filesystem::path ExecutableFolderPath = std::filesystem::path(argv[0]).parent_path();
 	std::filesystem::path ModelFolderPath = ExecutableFolderPath / "Models";
 
@@ -41,18 +41,21 @@ int main(int argc, char** argv)
 	Scene Scene(Device);
 	Scene.Camera.Transform.Translate(0, 5, 0);
 
-	//BottomLevelAccelerationStructure BurrPuzzle(Device);
-	//BurrPuzzle.AddGeometry(ModelFolderPath / "BurrPuzzle.obj");
-	//BurrPuzzle.Generate();
+	BSDF Matte;
+	Matte.Add(std::make_shared<LambertianReflection>(0.5f));
 
-	//RAYTRACING_INSTANCE_DESC BurrPuzzleInstance = {};
-	//BurrPuzzleInstance.Transform.SetScale(20, 20, 20);
-	//BurrPuzzleInstance.Transform.Translate(0, 5, 5);
-	//BurrPuzzleInstance.Transform.Rotate(0, 30.0_Deg, 0);
-	//BurrPuzzleInstance.pBLAS = &BurrPuzzle;
+	/*BottomLevelAccelerationStructure BurrPuzzle(Device);
+	BurrPuzzle.AddGeometry(ModelFolderPath / "BurrPuzzle.obj");
+	BurrPuzzle.Generate();
 
-	//Scene.AddBottomLevelAccelerationStructure(BurrPuzzleInstance);
-
+	RAYTRACING_INSTANCE_DESC BurrPuzzleInstance = {};
+	BurrPuzzleInstance.Transform.SetScale(20, 20, 20);
+	BurrPuzzleInstance.Transform.Translate(0, 5, 5);
+	BurrPuzzleInstance.Transform.Rotate(0, 30.0_Deg, 0);
+	BurrPuzzleInstance.pBSDF = &Matte;
+	BurrPuzzleInstance.pBLAS = &BurrPuzzle;
+	Scene.AddBottomLevelAccelerationStructure(BurrPuzzleInstance);*/
+	
 	BottomLevelAccelerationStructure BreakfastRoom(Device);
 	BreakfastRoom.AddGeometry(ModelFolderPath / "breakfast_room" / "breakfast_room.obj");
 	BreakfastRoom.Generate();
@@ -61,18 +64,30 @@ int main(int argc, char** argv)
 	BreakfastRoomInstance.Transform.SetScale(5, 5, 5);
 	BreakfastRoomInstance.Transform.Translate(0, 0, 20);
 	BreakfastRoomInstance.Transform.Rotate(0, 180.0_Deg, 0);
+	BreakfastRoomInstance.pBSDF = &Matte;
 	BreakfastRoomInstance.pBLAS = &BreakfastRoom;
-
 	Scene.AddBottomLevelAccelerationStructure(BreakfastRoomInstance);
 
-	constexpr int NumSamplesPerPixel = 8;
+	PointLight PL0(1000.0f);
+	PL0.Transform.Translate(3, 15, 20);
+	Scene.AddLight(&PL0);
+
+	int NumSamplesPerPixel = 8;
 	Random Random(NumSamplesPerPixel);
 
-	//constexpr int MaxDepth = 1;
-	//auto Integrator = CreatePathIntegrator(MaxDepth);
+	//auto Integrator = CreateNormalIntegrator(Geometric);
 
-	constexpr int NumSamples = 64;
-	auto Integrator = CreateAOIntegrator(NumSamples);
+	//constexpr int NumSamples = 64;
+	//auto Integrator = CreateAOIntegrator(NumSamples);
 
-	return Integrator->Render(Scene, Random);
+	int MaxDepth = 5;
+	auto Integrator = CreatePathIntegrator(MaxDepth);
+
+	if (Integrator)
+	{
+		Integrator->Initialize(Scene);
+		Integrator->Render(Scene, Random);
+		return Integrator->Shutdown();
+	}
+	return EXIT_FAILURE;
 }

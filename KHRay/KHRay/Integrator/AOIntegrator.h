@@ -10,7 +10,7 @@ public:
 
 	}
 
-	Spectrum Li(const Ray& ray, const Scene& scene, Sampler& sampler) override;
+	Spectrum Li(Ray ray, const Scene& scene, Sampler& sampler) override;
 private:
 	int NumSamples;
 };

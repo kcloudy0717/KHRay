@@ -10,6 +10,8 @@ template<int NumSpectrumSamples>
 class CoefficientSpectrum
 {
 public:
+	static constexpr int NumCoefficients = NumSpectrumSamples;
+
 	CoefficientSpectrum(float v = 0.0f)
 	{
 		for (int i = 0; i < NumSpectrumSamples; ++i)
@@ -153,11 +155,31 @@ public:
 		return ret;
 	}
 
+	CoefficientSpectrum Sqrt()
+	{
+		CoefficientSpectrum ret;
+		for (int i = 0; i < NumSpectrumSamples; ++i)
+		{
+			ret.c[i] = sqrt(c[i]);
+		}
+		return ret;
+	}
+
+	float MaxComponentValue() const
+	{
+		float m = c[0];
+		for (int i = 1; i < NumSpectrumSamples; ++i)
+		{
+			m = std::max(m, c[i]);
+		}
+		return m;
+	}
+
 	bool HasNans() const
 	{
 		for (const auto& l : c)
 		{
-			if (std::isnan(l) != 0.0f)
+			if (std::isnan(l))
 			{
 				return true;
 			}

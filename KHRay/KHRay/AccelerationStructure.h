@@ -5,6 +5,8 @@
 #include "Transform.h"
 #include "Vertex.h"
 
+struct BSDF;
+
 class AccelerationStructure
 {
 public:
@@ -49,6 +51,7 @@ private:
 struct RAYTRACING_INSTANCE_DESC
 {
 	Transform Transform;
+	BSDF* pBSDF;
 	BottomLevelAccelerationStructure* pBLAS;
 };
 

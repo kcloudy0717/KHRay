@@ -163,8 +163,15 @@ template <typename T>
 }
 
 template <typename T>
-inline Vector3<T> Faceforward(const Vector3<T>& n, const Vector3<T>& v) {
+[[nodiscard]] inline Vector3<T> Faceforward(const Vector3<T>& n, const Vector3<T>& v)
+{
 	return (Dot(n, v) < 0.0f) ? -n : n;
+}
+
+template <typename T>
+[[nodiscard]] inline float DistanceSquared(const Vector3<T>& p1, const Vector3<T>& p2)
+{
+	return (p1 - p2).LengthSquared();
 }
 
 template <typename T>

@@ -1,18 +1,17 @@
 #include "AOIntegrator.h"
 #include "../Scene.h"
 #include "../Sampler/Sampler.h"
-#include "../Sampling.h"
 
-Spectrum AOIntegrator::Li(const Ray& ray, const Scene& scene, Sampler& sampler)
+Spectrum AOIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 {
 	Spectrum L(0);
 
-	Intersection intersection = {};
-	if (scene.Intersect(ray, &intersection))
+	SurfaceInteraction interaction = {};
+	if (scene.Intersect(ray, &interaction))
 	{
 		// Compute coordinate frame based on true geometry, not shading
 		// geometry.
-		auto n = Faceforward(intersection.geoFrame.n, -ray.Direction);
+		auto n = Faceforward(interaction.GeometryBasis.n, -ray.Direction);
 		Vector3f s, t;
 		CoordinateSystem(n, &s, &t);
 
@@ -27,7 +26,7 @@ Spectrum AOIntegrator::Li(const Ray& ray, const Scene& scene, Sampler& sampler)
 				s.z * wi.x + t.z * wi.y + n.z * wi.z);
 
 			Ray occlusionRay = {};
-			occlusionRay.Origin = intersection.p;
+			occlusionRay.Origin = interaction.p;
 			occlusionRay.TMin = 0.001f;
 			occlusionRay.Direction = wi;
 			occlusionRay.TMax = INFINITY;

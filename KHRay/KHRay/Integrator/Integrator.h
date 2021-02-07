@@ -8,6 +8,7 @@
 #include "../Spectrum.h"
 
 struct Ray;
+struct SurfaceInteraction;
 struct Scene;
 class Sampler;
 
@@ -17,6 +18,46 @@ struct FilmTile
 
 	RECT Rect;
 	std::vector<Spectrum> Data;
+};
+
+class TileManager
+{
+public:
+	void Initialize(int Width, int Height)
+	{
+		for (int y = 0; y < Height; y += FilmTile::TILE_SIZE)
+		{
+			for (int x = 0; x < Width; x += FilmTile::TILE_SIZE)
+			{
+				int minX = x, minY = y;
+				int maxX = x + FilmTile::TILE_SIZE, maxY = y + FilmTile::TILE_SIZE;
+				maxX = maxX <= Width ? maxX : Width;
+				maxY = maxY <= Height ? maxY : Height;
+
+				FilmTile Tile;
+
+				RECT Rect = { minX, minY, maxX, maxY };
+				int TileWidth = Rect.right - Rect.left;
+				int TileHeight = Rect.bottom - Rect.top;
+
+				Tile.Rect = Rect;
+				Tile.Data.reserve(size_t(TileWidth) * size_t(TileHeight));
+
+				FilmTiles.emplace_back(std::move(Tile));
+			}
+		}
+	}
+
+	FilmTile& operator[](int i)
+	{
+		return FilmTiles[i];
+	}
+
+	auto size() const { return FilmTiles.size(); }
+	auto begin() { return FilmTiles.begin(); }
+	auto end() { return FilmTiles.end(); }
+private:
+	std::vector<FilmTile> FilmTiles;
 };
 
 class Integrator
@@ -29,11 +70,17 @@ public:
 	static constexpr int Width = 1920;
 	static constexpr int Height = 1080;
 
-	int Render(Scene& Scene, Sampler& Sampler);
+	void Initialize(Scene& Scene);
+	void Render(const Scene& Scene, const Sampler& Sampler);
+	int Shutdown();
 
 	// All integrator inherited needs to implement this method
 	/*
 	*	Sample the incident radiance along the given ray
 	*/
-	virtual Spectrum Li(const Ray& ray, const Scene& scene, Sampler& sampler) = 0;
+	virtual Spectrum Li(Ray ray, const Scene& scene, Sampler& sampler) = 0;
+
+	static Spectrum UniformSampleOneLight(const SurfaceInteraction& Interaction, const Scene& scene, Sampler& sampler);
+private:
+	TileManager TileManager;
 };
