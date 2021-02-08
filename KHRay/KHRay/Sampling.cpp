@@ -35,6 +35,19 @@ Vector2f ConcentricSampleDisk(const Vector2f& Xi)
 	return { radius * std::cos(theta), radius * std::sin(theta) };
 }
 
+Vector3f UniformSampleHemisphere(const Vector2f& Xi)
+{
+	float z = Xi[0];
+	float r = std::sqrt(std::max(0.0f, 1.0f - z * z));
+	float phi = 2.0f * g_PI * Xi[1];
+	return { r * std::cos(phi), r * std::sin(phi), z };
+}
+
+float UniformHemispherePdf()
+{
+	return g_1DIV2PI;
+}
+
 Vector3f CosineSampleHemisphere(const Vector2f& Xi)
 {
 	auto p = ConcentricSampleDisk(Xi);

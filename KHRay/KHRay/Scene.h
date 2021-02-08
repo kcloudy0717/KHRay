@@ -75,6 +75,7 @@ struct Scene
 	Scene(const Device& Device);
 
 	bool Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) const;
+	bool Occluded(const Ray& Ray) const;
 
 	void AddBottomLevelAccelerationStructure(const RAYTRACING_INSTANCE_DESC& Desc);
 

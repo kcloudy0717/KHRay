@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 	BreakfastRoomInstance.pBLAS = &BreakfastRoom;
 	Scene.AddBottomLevelAccelerationStructure(BreakfastRoomInstance);
 
-	PointLight PL0(Spectrum(216.0f / 255.0f, 247.0f / 255.0f, 255.0f / 255.0f) * 100.0f);
+	PointLight PL0(Spectrum(216.0f / 255.0f, 247.0f / 255.0f, 255.0f / 255.0f) * 200.0f);
 	PL0.Transform.Translate(3, 15, 20);
 	Scene.AddLight(&PL0);
 
@@ -61,8 +61,8 @@ int main(int argc, char** argv)
 
 	//auto Integrator = CreateNormalIntegrator(Geometric);
 
-	//constexpr int NumSamples = 64;
-	//auto Integrator = CreateAOIntegrator(NumSamples);
+	//constexpr int NumSamples = 16;
+	//auto Integrator = CreateAOIntegrator(NumSamples, SamplingStrategy::Uniform);
 
 	int MaxDepth = 5;
 	auto Integrator = CreatePathIntegrator(MaxDepth);

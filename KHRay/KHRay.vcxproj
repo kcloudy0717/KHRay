@@ -195,7 +195,6 @@ Xcopy "$(SolutionDir)..\Submodules\assimp\bin" "$(TargetDir)" /y</Command>
     <ClInclude Include="KHRay\Vector2.h" />
     <ClInclude Include="KHRay\Vector3.h" />
     <ClInclude Include="KHRay\Vertex.h" />
-    <ClInclude Include="KHRay\WaveFrontReader.h" />
     <ClInclude Include="KHRay\Scene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

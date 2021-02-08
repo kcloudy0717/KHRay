@@ -17,8 +17,20 @@ Spectrum AOIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 
 		for (int i = 0; i < NumSamples; ++i)
 		{
-			auto wi = CosineSampleHemisphere(sampler.Get2D());
-			auto pdf = CosineHemispherePdf(std::abs(wi.z));
+			Vector3f wi;
+			float pdf;
+
+			switch (Strategy)
+			{
+			case SamplingStrategy::Uniform:
+				wi = UniformSampleHemisphere(sampler.Get2D());
+				pdf = UniformHemispherePdf();
+				break;
+			case SamplingStrategy::Cosine:
+				wi = CosineSampleHemisphere(sampler.Get2D());
+				pdf = CosineHemispherePdf(std::abs(wi.z));
+				break;
+			}
 
 			// Transform wi from local frame to world space.
 			wi = Vector3f(s.x * wi.x + t.x * wi.y + n.x * wi.z,
@@ -27,7 +39,7 @@ Spectrum AOIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 
 			Ray occlusionRay = {};
 			occlusionRay.Origin = interaction.p;
-			occlusionRay.TMin = 0.001f;
+			occlusionRay.TMin = 0.0001f;
 			occlusionRay.Direction = wi;
 			occlusionRay.TMax = INFINITY;
 
@@ -41,7 +53,7 @@ Spectrum AOIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 	return L /= float(NumSamples);
 }
 
-std::unique_ptr<AOIntegrator> CreateAOIntegrator(int NumSamples)
+std::unique_ptr<AOIntegrator> CreateAOIntegrator(int NumSamples, SamplingStrategy Strategy /*= SamplingStrategy::Cosine*/)
 {
-	return std::unique_ptr<AOIntegrator>(new AOIntegrator(NumSamples));
+	return std::unique_ptr<AOIntegrator>(new AOIntegrator(NumSamples, Strategy));
 }

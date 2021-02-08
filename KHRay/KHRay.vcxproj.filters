@@ -92,9 +92,6 @@
     <ClInclude Include="KHRay\Sampling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="KHRay\WaveFrontReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="KHRay\Utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>

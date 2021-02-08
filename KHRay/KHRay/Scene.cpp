@@ -19,17 +19,9 @@ Ray Interaction::SpawnRayTo(const Interaction& Interaction) const
 
 bool VisibilityTester::Unoccluded(const Scene& Scene) const
 {
-	RTCIntersectContext RTCIntersectContext;
-	rtcInitIntersectContext(&RTCIntersectContext);
-
 	Ray shadowRay = I0.SpawnRayTo(I1);
 
-	RTCRay RTCRay = shadowRay;
-
-	// This function sets RTCRay::tfar to -inf if intersection was found
-	rtcOccluded1(Scene.TopLevelAccelerationStructure, &RTCIntersectContext, &RTCRay);
-
-	return RTCRay.tfar != -std::numeric_limits<float>::infinity();
+	return !Scene.Occluded(shadowRay);
 }
 
 Scene::Scene(const Device& Device)
@@ -117,6 +109,19 @@ bool Scene::Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) c
 	}
 
 	return true;
+}
+
+bool Scene::Occluded(const Ray& Ray) const
+{
+	RTCIntersectContext RTCIntersectContext;
+	rtcInitIntersectContext(&RTCIntersectContext);
+
+	RTCRay RTCRay = Ray;
+
+	// This function sets RTCRay::tfar to -inf if intersection was found
+	rtcOccluded1(TopLevelAccelerationStructure, &RTCIntersectContext, &RTCRay);
+
+	return RTCRay.tfar == -std::numeric_limits<float>::infinity();
 }
 
 void Scene::AddBottomLevelAccelerationStructure(const RAYTRACING_INSTANCE_DESC& Desc)
