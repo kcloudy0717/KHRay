@@ -39,8 +39,13 @@ All of the required libraries should be included in the repository, the only thi
 # Progress
 ![0](/Progress/FirstTriangle.png?raw=true "FirstTriangle")
 ![1](/Progress/InterpolatedNormal.png?raw=true "InterpolatedNormal")
-![2](/Progress/AmbientOcclusion.png?raw=true "AmbientOcclusion")
-![3](/Progress/Lambertian.png?raw=true "Lambertian")
+![2](/Progress/GeometricNormal.png?raw=true "GeometricNormal")
+![3](/Progress/ShadingNormal.png?raw=true "ShadingNormal")
+![4](/Progress/AmbientOcclusion.png?raw=true "AmbientOcclusion")
+![5](/Progress/LambertianBuggy.png?raw=true "LambertianBuggy")
+Buggy lambertian, thanks to Trolljanhorse#1596 from GP discord for helping me figure out the problem, the issue was I wasnt clamping my lighting results, I need to add proper tone mapping in the future
+
+![4](/Progress/Lambertian.png?raw=true "Lambertian")
 
 [0]: <https://github.com/assimp/assimp> "assimp"
 [1]: <https://github.com/embree/embree> "embree"
