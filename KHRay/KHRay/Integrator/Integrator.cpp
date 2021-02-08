@@ -21,14 +21,36 @@ using namespace concurrency;
 #define MULTI_THREADED 1
 #endif
 
-#define DEBUG_X 890
-#define DEBUG_Y 260
+#define DEBUG_X 920
+#define DEBUG_Y 500
 static bool DEBUG_PIXEL = false;
+
+template <typename T, typename U, typename V>
+inline T Clamp(T val, U low, V high)
+{
+	if (val < low)
+		return low;
+	else if (val > high)
+		return high;
+	else
+		return val;
+}
+
+inline float GammaCorrect(float value)
+{
+	if (value <= 0.0031308f)
+	{
+		return 12.92f * value;
+	}
+	return 1.055f * std::pow(value, (1.f / 2.4f)) - 0.055f;
+}
 
 int Save(const Texture2D<RGBSpectrum>& Image, int NumChannels)
 {
 	// Saves a input image as a png using stb
 	std::unique_ptr<BYTE[]> Pixels = std::make_unique<BYTE[]>(Image.Width * Image.Height * NumChannels);
+
+	BYTE* pDst = Pixels.get();
 
 	int index = 0;
 	for (int y = int(Image.Height) - 1; y >= 0; --y)
@@ -36,15 +58,13 @@ int Save(const Texture2D<RGBSpectrum>& Image, int NumChannels)
 		for (int x = 0; x < int(Image.Width); ++x)
 		{
 			auto color = Image.GetPixel(x, y);
-			color = color.Sqrt(); // Gamma correct approx
 
-			auto ir = int(255.99 * color[0]);
-			auto ig = int(255.99 * color[1]);
-			auto ib = int(255.99 * color[2]);
-
-			Pixels[index++] = ir;
-			Pixels[index++] = ig;
-			Pixels[index++] = ib;
+#define TO_BYTE(v) (uint8_t) Clamp(255.f * GammaCorrect(v) + 0.5f, 0.f, 255.f)
+			pDst[0] = TO_BYTE(color[0]);
+			pDst[1] = TO_BYTE(color[1]);
+			pDst[2] = TO_BYTE(color[2]);
+#undef TO_BYTE
+			pDst += 3;
 		}
 	}
 
@@ -56,7 +76,7 @@ int Save(const Texture2D<RGBSpectrum>& Image, int NumChannels)
 	if (stbi_write_png(Name, Image.Width, Image.Height, 3, Pixels.get(), Image.Width * NumChannels))
 	{
 		return EXIT_SUCCESS;
-	}
+}
 
 	return EXIT_FAILURE;
 }
@@ -170,6 +190,8 @@ void Integrator::Initialize(Scene& Scene)
 
 int Integrator::Render(const Scene& Scene, const Sampler& Sampler)
 {
+	Texture2D<RGBSpectrum> Output(Width, Height);
+
 	ProgressReport ProgressReport("Render", (int)TileManager.size());
 
 	auto Process = [&](FilmTile& Tile)
@@ -205,7 +227,7 @@ int Integrator::Render(const Scene& Scene, const Sampler& Sampler)
 
 				L /= float(pSampler->GetNumSamplesPerPixel());
 
-				Tile.Data.push_back(L);
+				Output.SetPixel(x, y, L);
 			}
 		}
 
@@ -222,21 +244,6 @@ int Integrator::Render(const Scene& Scene, const Sampler& Sampler)
 		Process(tile);
 	}
 #endif
-
-	// Write per tile data to a output texture and save it on disk
-	Texture2D<RGBSpectrum> Output(Width, Height);
-	for (auto& tile : TileManager)
-	{
-		int Index = 0;
-		for (int y = tile.Rect.top; y < tile.Rect.bottom; ++y)
-		{
-			for (int x = tile.Rect.left; x < tile.Rect.right; ++x)
-			{
-				Output.SetPixel(x, y, tile.Data[Index]);
-				Index++;
-			}
-		}
-	}
 
 	return Save(Output, NumChannels);
 }

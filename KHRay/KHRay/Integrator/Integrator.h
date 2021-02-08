@@ -17,7 +17,6 @@ struct FilmTile
 	static const int TILE_SIZE = 32;
 
 	RECT Rect;
-	std::vector<Spectrum> Data;
 };
 
 class TileManager
@@ -41,7 +40,6 @@ public:
 				int TileHeight = rect.bottom - rect.top;
 
 				tile.Rect = rect;
-				tile.Data.reserve(size_t(TileWidth) * size_t(TileHeight));
 
 				FilmTiles.emplace_back(std::move(tile));
 			}

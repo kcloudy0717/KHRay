@@ -1,7 +1,7 @@
 #include "Scene.h"
 #include "Device.h"
 
-constexpr float ShadowEpsilon = 0.0001f;
+constexpr float ShadowEpsilon = 1;
 
 Ray Interaction::SpawnRay(const Vector3f& d) const
 {
@@ -19,13 +19,23 @@ Ray Interaction::SpawnRayTo(const Interaction& Interaction) const
 
 bool VisibilityTester::Unoccluded(const Scene& Scene) const
 {
-	return !Scene.Intersect(I0.SpawnRayTo(I1), nullptr);
+	RTCIntersectContext context;
+	rtcInitIntersectContext(&context);
+
+	Ray shadowRay = I0.SpawnRayTo(I1);
+
+	RTCRay RTCRay = shadowRay;
+
+	rtcOccluded1(Scene.TopLevelAccelerationStructure, &context, &RTCRay);
+
+	return RTCRay.tfar != -std::numeric_limits<float>::infinity();
 }
 
 Scene::Scene(const Device& Device)
 	: TopLevelAccelerationStructure(Device)
 {
-
+	rtcSetSceneBuildQuality(TopLevelAccelerationStructure, RTC_BUILD_QUALITY_HIGH);
+	rtcSetSceneFlags(TopLevelAccelerationStructure, RTC_SCENE_FLAG_ROBUST);
 }
 
 bool Scene::Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) const
