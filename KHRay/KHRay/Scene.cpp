@@ -1,7 +1,7 @@
 #include "Scene.h"
 #include "Device.h"
 
-constexpr float ShadowEpsilon = 1;
+constexpr float ShadowEpsilon = 0.0001f;
 
 Ray Interaction::SpawnRay(const Vector3f& d) const
 {
