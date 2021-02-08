@@ -39,6 +39,7 @@ All of the required libraries should be included in the repository, the only thi
 ![0](/Progress/FirstTriangle.png?raw=true "FirstTriangle")
 ![1](/Progress/InterpolatedNormal.png?raw=true "InterpolatedNormal")
 ![2](/Progress/AmbientOcclusion.png?raw=true "AmbientOcclusion")
+![3](/Progress/Lambertian.png?raw=true "Lambertian")
 
 [1]: <https://github.com/embree/embree> "embree"
 [2]: <https://github.com/wjakob/pcg32.git> "pcg32"
