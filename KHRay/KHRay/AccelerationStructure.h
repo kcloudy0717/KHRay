@@ -23,8 +23,6 @@ struct RAYTRACING_GEOMETRY_DESC
 {
 	Vertex* pVertices;
 	unsigned int* pIndices;
-	size_t NumVertices;
-	size_t NumIndices;
 	bool HasNormals;
 	bool HasTextureCoordinates;
 };

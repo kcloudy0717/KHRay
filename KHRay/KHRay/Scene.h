@@ -76,20 +76,11 @@ struct Scene
 
 	bool Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) const;
 
-	void AddBottomLevelAccelerationStructure(const RAYTRACING_INSTANCE_DESC& Desc)
-	{
-		TopLevelAccelerationStructure.AddBottomLevelAccelerationStructure(Desc);
-	}
+	void AddBottomLevelAccelerationStructure(const RAYTRACING_INSTANCE_DESC& Desc);
 
-	void AddLight(Light* pLight)
-	{
-		Lights.push_back(pLight);
-	}
+	void AddLight(Light* pLight);
 
-	void Generate()
-	{
-		TopLevelAccelerationStructure.Generate();
-	}
+	void Generate();
 
 	Camera Camera;
 	TopLevelAccelerationStructure TopLevelAccelerationStructure;

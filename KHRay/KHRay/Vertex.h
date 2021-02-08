@@ -3,16 +3,33 @@
 
 struct Vertex
 {
-	Vector3f Position;
-	Vector2f TextureCoordinate;
-	Vector3f Normal;
+	auto operator<=>(const Vertex&) const = default;
 
 	void TransformToWorld(DirectX::XMMATRIX M)
 	{
 		Position = XMVector3TransformCoord(Position.ToXMVECTOR(true), M);
 		Normal = XMVector3TransformNormal(Normal.ToXMVECTOR(), M);
 	}
+
+	Vector3f Position;
+	Vector2f TextureCoordinate;
+	Vector3f Normal;
 };
+
+namespace std
+{
+	template<>
+	struct hash<Vertex>
+	{
+		size_t operator()(const Vertex& vertex) const
+		{
+			std::size_t h1 = std::hash<Vector3f>{}(vertex.Position);
+			std::size_t h2 = std::hash<Vector2f>{}(vertex.TextureCoordinate);
+			std::size_t h3 = std::hash<Vector3f>{}(vertex.Normal);
+			return h1 ^ (h2 << 1) >> (h3 << 1);
+		}
+	};
+}
 
 inline float BarycentricInterpolation(float v0, float v1, float v2, Vector3f barycentric)
 {

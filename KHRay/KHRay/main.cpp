@@ -52,7 +52,6 @@ int main(int argc, char** argv)
 	RAYTRACING_INSTANCE_DESC BreakfastRoomInstance = {};
 	BreakfastRoomInstance.Transform.SetScale(5, 5, 5);
 	BreakfastRoomInstance.Transform.Translate(0, 0, 20);
-	BreakfastRoomInstance.Transform.Rotate(0, 180.0_Deg, 0);
 	BreakfastRoomInstance.pBSDF = &Matte;
 	BreakfastRoomInstance.pBLAS = &BreakfastRoom;
 	Scene.AddBottomLevelAccelerationStructure(BreakfastRoomInstance);

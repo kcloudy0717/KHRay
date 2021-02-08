@@ -19,14 +19,15 @@ Ray Interaction::SpawnRayTo(const Interaction& Interaction) const
 
 bool VisibilityTester::Unoccluded(const Scene& Scene) const
 {
-	RTCIntersectContext context;
-	rtcInitIntersectContext(&context);
+	RTCIntersectContext RTCIntersectContext;
+	rtcInitIntersectContext(&RTCIntersectContext);
 
 	Ray shadowRay = I0.SpawnRayTo(I1);
 
 	RTCRay RTCRay = shadowRay;
 
-	rtcOccluded1(Scene.TopLevelAccelerationStructure, &context, &RTCRay);
+	// This function sets RTCRay::tfar to -inf if intersection was found
+	rtcOccluded1(Scene.TopLevelAccelerationStructure, &RTCIntersectContext, &RTCRay);
 
 	return RTCRay.tfar != -std::numeric_limits<float>::infinity();
 }
@@ -45,8 +46,8 @@ bool Scene::Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) c
 	* filters or flags, and it also contains the instance ID stack
 	* used in multi-level instancing.
 	*/
-	RTCIntersectContext context;
-	rtcInitIntersectContext(&context);
+	RTCIntersectContext RTCIntersectContext;
+	rtcInitIntersectContext(&RTCIntersectContext);
 
 	/*
 	* The ray hit structure holds both the ray and the hit.
@@ -59,7 +60,7 @@ bool Scene::Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) c
 	* There are multiple variants of rtcIntersect. This one
 	* intersects a single ray with the scene.
 	*/
-	rtcIntersect1(TopLevelAccelerationStructure, &context, &RTCRayHit);
+	rtcIntersect1(TopLevelAccelerationStructure, &RTCIntersectContext, &RTCRayHit);
 
 	if (RTCRayHit.hit.geomID == RTC_INVALID_GEOMETRY_ID)
 	{
@@ -71,8 +72,8 @@ bool Scene::Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) c
 		using namespace DirectX;
 
 		const auto& hit = RTCRayHit.hit;
-		auto Instance = TopLevelAccelerationStructure[hit.geomID];
-		auto GeometryDesc = (*Instance.pBLAS)[hit.instID[0]];
+		auto Instance = TopLevelAccelerationStructure[hit.instID[0]];
+		auto GeometryDesc = (*Instance.pBLAS)[hit.geomID];
 
 		XMMATRIX mMatrix = Instance.Transform.Matrix();
 
@@ -116,4 +117,19 @@ bool Scene::Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) c
 	}
 
 	return true;
+}
+
+void Scene::AddBottomLevelAccelerationStructure(const RAYTRACING_INSTANCE_DESC& Desc)
+{
+	TopLevelAccelerationStructure.AddBottomLevelAccelerationStructure(Desc);
+}
+
+void Scene::AddLight(Light* pLight)
+{
+	Lights.push_back(pLight);
+}
+
+void Scene::Generate()
+{
+	TopLevelAccelerationStructure.Generate();
 }

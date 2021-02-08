@@ -30,10 +30,9 @@ inline T Clamp(T val, U low, V high)
 {
 	if (val < low)
 		return low;
-	else if (val > high)
+	if (val > high)
 		return high;
-	else
-		return val;
+	return val;
 }
 
 inline float GammaCorrect(float value)
@@ -76,7 +75,7 @@ int Save(const Texture2D<RGBSpectrum>& Image, int NumChannels)
 	if (stbi_write_png(Name, Image.Width, Image.Height, 3, Pixels.get(), Image.Width * NumChannels))
 	{
 		return EXIT_SUCCESS;
-}
+	}
 
 	return EXIT_FAILURE;
 }
