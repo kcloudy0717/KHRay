@@ -27,7 +27,7 @@ All of the required libraries should be included in the repository, the only thi
 - Ray Tracing book series (In One Weekend, The Next Week, The Rest of Your Life) by Peter Shirley
 - Real-Time Rendering, Fourth Edition by Eric Haines, Naty Hoffman, and Tomas Möller
 - Advanced Global Illumination by Kavita Bala, Philip Dutre, and Philippe Bekaert
-- Nori an educational ray tracer by 
+- Nori an educational ray tracer by Wenzel Jakob
 - Robust Monte Carlo Methods for Light Transport Simulation by Eric Veach
 
 # Acknowledgements
