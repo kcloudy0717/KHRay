@@ -3,8 +3,6 @@
 
 struct Vertex
 {
-	auto operator<=>(const Vertex&) const = default;
-
 	void TransformToWorld(DirectX::XMMATRIX M)
 	{
 		Position = XMVector3TransformCoord(Position.ToXMVECTOR(true), M);
@@ -16,27 +14,12 @@ struct Vertex
 	Vector3f Normal;
 };
 
-namespace std
-{
-	template<>
-	struct hash<Vertex>
-	{
-		size_t operator()(const Vertex& vertex) const
-		{
-			std::size_t h1 = std::hash<Vector3f>{}(vertex.Position);
-			std::size_t h2 = std::hash<Vector2f>{}(vertex.TextureCoordinate);
-			std::size_t h3 = std::hash<Vector3f>{}(vertex.Normal);
-			return h1 ^ (h2 << 1) >> (h3 << 1);
-		}
-	};
-}
-
-inline float BarycentricInterpolation(float v0, float v1, float v2, Vector3f barycentric)
+inline float BarycentricInterpolation(float v0, float v1, float v2, CVector3fRef barycentric)
 {
 	return v0 * barycentric.x + v1 * barycentric.y + v2 * barycentric.z;
 }
 
-inline Vector2f BarycentricInterpolation(Vector2f v0, Vector2f v1, Vector2f v2, Vector3f barycentric)
+inline Vector2f BarycentricInterpolation(Vector2f v0, Vector2f v1, Vector2f v2, CVector3fRef barycentric)
 {
 	return
 	{
@@ -45,7 +28,7 @@ inline Vector2f BarycentricInterpolation(Vector2f v0, Vector2f v1, Vector2f v2, 
 	};
 }
 
-inline Vector3f BarycentricInterpolation(Vector3f v0, Vector3f v1, Vector3f v2, Vector3f barycentric)
+inline Vector3f BarycentricInterpolation(Vector3f v0, Vector3f v1, Vector3f v2, CVector3fRef barycentric)
 {
 	return
 	{
@@ -55,7 +38,7 @@ inline Vector3f BarycentricInterpolation(Vector3f v0, Vector3f v1, Vector3f v2, 
 	};
 }
 
-inline Vertex BarycentricInterpolation(Vertex v0, Vertex v1, Vertex v2, Vector3f barycentric)
+inline Vertex BarycentricInterpolation(Vertex v0, Vertex v1, Vertex v2, CVector3fRef barycentric)
 {
 	Vertex vertex;
 	vertex.Position = BarycentricInterpolation(v0.Position, v1.Position, v2.Position, barycentric);

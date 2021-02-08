@@ -42,9 +42,6 @@ int main(int argc, char** argv)
 	Scene.Camera.Transform.Translate(0, 15, 5);
 	Scene.Camera.Transform.Rotate(30.0_Deg, 0, 0);
 
-	BSDF Matte;
-	Matte.Add(std::make_shared<LambertianReflection>(0.5f));
-
 	BottomLevelAccelerationStructure BreakfastRoom(Device);
 	BreakfastRoom.AddGeometry(ModelFolderPath / "breakfast_room" / "breakfast_room.obj");
 	BreakfastRoom.Generate();
@@ -52,11 +49,10 @@ int main(int argc, char** argv)
 	RAYTRACING_INSTANCE_DESC BreakfastRoomInstance = {};
 	BreakfastRoomInstance.Transform.SetScale(5, 5, 5);
 	BreakfastRoomInstance.Transform.Translate(0, 0, 20);
-	BreakfastRoomInstance.pBSDF = &Matte;
 	BreakfastRoomInstance.pBLAS = &BreakfastRoom;
 	Scene.AddBottomLevelAccelerationStructure(BreakfastRoomInstance);
 
-	PointLight PL0(Spectrum(216.0f / 255.0f, 247.0f / 255.0f, 255.0f / 255.0f) * 1000.0f);
+	PointLight PL0(Spectrum(216.0f / 255.0f, 247.0f / 255.0f, 255.0f / 255.0f) * 100.0f);
 	PL0.Transform.Translate(3, 15, 20);
 	Scene.AddLight(&PL0);
 

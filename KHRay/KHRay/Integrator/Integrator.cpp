@@ -21,8 +21,8 @@ using namespace concurrency;
 #define MULTI_THREADED 1
 #endif
 
-#define DEBUG_X 920
-#define DEBUG_Y 500
+#define DEBUG_X 600
+#define DEBUG_Y 100
 static bool DEBUG_PIXEL = false;
 
 template <typename T, typename U, typename V>

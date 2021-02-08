@@ -21,7 +21,7 @@ Spectrum PathIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 		// (But skip this for perfectly specular BSDFs.)
 		if (interaction.BSDF.NumComponents(BxDF::Type(BxDF::BSDF_All & ~BxDF::BSDF_Specular)) > 0)
 		{
-			L += UniformSampleOneLight(interaction, scene, sampler);
+			L += beta * UniformSampleOneLight(interaction, scene, sampler);
 		}
 
 		// Sample BSDF to get new path direction

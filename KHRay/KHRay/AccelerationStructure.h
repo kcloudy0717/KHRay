@@ -4,8 +4,7 @@
 #include <vector>
 #include "Transform.h"
 #include "Vertex.h"
-
-struct BSDF;
+#include "BxDF.h"
 
 class AccelerationStructure
 {
@@ -25,6 +24,7 @@ struct RAYTRACING_GEOMETRY_DESC
 	unsigned int* pIndices;
 	bool HasNormals;
 	bool HasTextureCoordinates;
+	BSDF BSDF;
 };
 
 class BottomLevelAccelerationStructure : public AccelerationStructure
@@ -49,7 +49,6 @@ private:
 struct RAYTRACING_INSTANCE_DESC
 {
 	Transform Transform;
-	BSDF* pBSDF;
 	BottomLevelAccelerationStructure* pBLAS;
 };
 

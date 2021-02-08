@@ -142,6 +142,17 @@ void BottomLevelAccelerationStructure::AddGeometry(const std::filesystem::path& 
 			GeometryDesc.HasNormals = paiMesh->HasNormals();
 			GeometryDesc.HasTextureCoordinates = paiMesh->HasTextureCoords(0);
 
+			auto paiMaterial = paiScene->mMaterials[paiMesh->mMaterialIndex];
+			aiColor3D color(0.0f, 0.0f, 0.0f);
+			paiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+
+			if (color.IsBlack())
+			{
+				color.r = color.g = color.b = 1.0f;
+			}
+
+			GeometryDesc.BSDF.Add(std::make_shared<LambertianReflection>(Spectrum(color.r, color.g, color.b)));
+
 			GeometryDescs.push_back(GeometryDesc);
 			Geometries.push_back(Geometry);
 			NumGeometries++;

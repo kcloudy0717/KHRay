@@ -189,18 +189,4 @@ inline void CoordinateSystem(const Vector3<T>& v1, Vector3<T>* v2, Vector3<T>* v
 }
 
 using Vector3f = Vector3<float>;
-
-namespace std
-{
-	template<>
-	struct hash<Vector3f>
-	{
-		size_t operator()(const Vector3f& v) const
-		{
-			std::size_t h1 = std::hash<float>{}(v.x);
-			std::size_t h2 = std::hash<float>{}(v.y);
-			std::size_t h3 = std::hash<float>{}(v.z);
-			return h1 ^ (h2 << 1) >> (h3 << 1);
-		}
-	};
-}
+using CVector3fRef = const Vector3f&;

@@ -112,7 +112,7 @@ bool Scene::Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) c
 		}
 
 		// Update BSDF's internal data
-		pSurfaceInteraction->BSDF = pSurfaceInteraction->Instance.pBSDF->Clone();
+		pSurfaceInteraction->BSDF = GeometryDesc.BSDF.Clone();
 		pSurfaceInteraction->BSDF.SetInteraction(*pSurfaceInteraction);
 	}
 

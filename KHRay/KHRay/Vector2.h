@@ -152,17 +152,4 @@ Vector2<T> Normalize(const Vector2<T>& v)
 }
 
 using Vector2f = Vector2<float>;
-
-namespace std
-{
-	template<>
-	struct hash<Vector2f>
-	{
-		size_t operator()(const Vector2f& v) const
-		{
-			std::size_t h1 = std::hash<float>{}(v.x);
-			std::size_t h2 = std::hash<float>{}(v.y);
-			return h1 ^ (h2 << 1);
-		}
-	};
-}
+using CVector2fRef = const Vector2f&;
