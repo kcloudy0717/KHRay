@@ -39,23 +39,11 @@ int main(int argc, char** argv)
 
 	Device Device;
 	Scene Scene(Device);
-	Scene.Camera.Transform.Translate(0, 10, 5);
+	Scene.Camera.Transform.Translate(0, 15, 5);
 	Scene.Camera.Transform.Rotate(30.0_Deg, 0, 0);
 
 	BSDF Matte;
 	Matte.Add(std::make_shared<LambertianReflection>(0.5f));
-
-	/*BottomLevelAccelerationStructure BurrPuzzle(Device);
-	BurrPuzzle.AddGeometry(ModelFolderPath / "BurrPuzzle.obj");
-	BurrPuzzle.Generate();
-
-	RAYTRACING_INSTANCE_DESC BurrPuzzleInstance = {};
-	BurrPuzzleInstance.Transform.SetScale(20, 20, 20);
-	BurrPuzzleInstance.Transform.Translate(0, 5, 5);
-	BurrPuzzleInstance.Transform.Rotate(0, 30.0_Deg, 0);
-	BurrPuzzleInstance.pBSDF = &Matte;
-	BurrPuzzleInstance.pBLAS = &BurrPuzzle;
-	Scene.AddBottomLevelAccelerationStructure(BurrPuzzleInstance);*/
 
 	BottomLevelAccelerationStructure BreakfastRoom(Device);
 	BreakfastRoom.AddGeometry(ModelFolderPath / "breakfast_room" / "breakfast_room.obj");

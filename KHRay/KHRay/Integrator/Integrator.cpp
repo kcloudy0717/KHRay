@@ -269,15 +269,8 @@ Spectrum EstimateDirect(const SurfaceInteraction& Interaction,
 			// Add light's contribution to reflected radiance
 			if (!Li.IsBlack())
 			{
-				if (Light.IsDeltaLight())
-				{
-					Ld += f * Li / lightPdf;
-				}
-				else
-				{
-					float weight = PowerHeuristic(1, lightPdf, 1, scatteringPdf);
-					Ld += f * Li * weight / lightPdf;
-				}
+				// Only handling point light for now
+				Ld += f * Li / lightPdf;
 			}
 		}
 	}

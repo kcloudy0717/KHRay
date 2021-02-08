@@ -37,7 +37,6 @@ public:
 				FilmTile tile;
 
 				RECT rect = { minX, minY, maxX, maxY };
-				printf("[%i, %i] x [%i, %i]\n", minX, minY, maxX, maxY);
 				int TileWidth = rect.right - rect.left;
 				int TileHeight = rect.bottom - rect.top;
 
