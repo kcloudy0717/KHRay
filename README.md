@@ -31,6 +31,7 @@ All of the required libraries should be included in the repository, the only thi
 - Robust Monte Carlo Methods for Light Transport Simulation by Eric Veach
 
 # Acknowledgements
+- [assimp][0]
 - [embree][1]
 - [pcg32][2]
 - [stb][3]
@@ -41,6 +42,7 @@ All of the required libraries should be included in the repository, the only thi
 ![2](/Progress/AmbientOcclusion.png?raw=true "AmbientOcclusion")
 ![3](/Progress/Lambertian.png?raw=true "Lambertian")
 
+[0]: <https://github.com/assimp/assimp> "assimp"
 [1]: <https://github.com/embree/embree> "embree"
 [2]: <https://github.com/wjakob/pcg32.git> "pcg32"
 [3]: <https://github.com/nothings/stb> "stb"
