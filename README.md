@@ -18,7 +18,6 @@ This is a on-going project. The goal is to write a simple ray tracer that produc
 # Build
 - Visual Studio 2019
 - C++ 20
-- Windows 10
 
 All of the required libraries should be included in the repository, the only thing needs to be done is to initialize the submodules
 
@@ -43,7 +42,7 @@ All of the required libraries should be included in the repository, the only thi
 ![3](/Progress/ShadingNormal.png?raw=true "ShadingNormal")
 ![4](/Progress/AmbientOcclusion.png?raw=true "AmbientOcclusion")
 ![5](/Progress/LambertianBuggy.png?raw=true "LambertianBuggy")
-Buggy lambertian, thanks to Trolljanhorse#1596 from GP discord for helping me figure out the problem, the issue was I wasnt clamping my lighting results, I need to add proper tone mapping in the future
+Buggy lambertian, thanks to Trolljanhorse#1596 from GP discord for helping me figure out the problem, the issue was that I wasnt clamping my lighting results before writing to png, I need to add proper tone mapping in the future.
 
 ![4](/Progress/Lambertian.png?raw=true "Lambertian")
 
