@@ -15,11 +15,7 @@ using namespace concurrency;
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
 
-#ifdef _DEBUG
 #define MULTI_THREADED 1
-#else
-#define MULTI_THREADED 1
-#endif
 
 #define DEBUG_X 600
 #define DEBUG_Y 100

@@ -1,4 +1,5 @@
 #pragma once
+
 static constexpr float g_PI = 3.141592654f;
 static constexpr float g_2PI = 6.283185307f;
 static constexpr float g_1DIVPI = 0.318309886f;

@@ -23,10 +23,10 @@ public:
 	virtual std::unique_ptr<Sampler> Clone() const = 0;
 
 	/*
-	*	Prepares the sampler to render a new film tile
-	*	This function is called when the sampler begins rendering a new film tile
-	*	This can be used to determinstically initialize the sampler so that repeated program runs
-	*	always create the same image.
+	* Prepares the sampler to render a new film tile
+	* This function is called when the sampler begins rendering a new film tile
+	* This can be used to determinstically initialize the sampler so that repeated program runs
+	* always create the same image.
 	*/
 	virtual void StartPixel(int x, int y) = 0;
 
