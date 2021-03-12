@@ -40,8 +40,10 @@ inline float GammaCorrect(float value)
 	return 1.055f * std::pow(value, (1.f / 2.4f)) - 0.055f;
 }
 
-int Save(const Texture2D<RGBSpectrum>& Image, int NumChannels)
+int Save(const Texture2D<RGBSpectrum>& Image)
 {
+	constexpr int NumChannels = 3;
+	
 	// Saves a input image as a png using stb
 	std::unique_ptr<BYTE[]> Pixels = std::make_unique<BYTE[]>(Image.Width * Image.Height * NumChannels);
 
@@ -240,7 +242,7 @@ int Integrator::Render(const Scene& Scene, const Sampler& Sampler)
 	}
 #endif
 
-	return Save(Output, NumChannels);
+	return Save(Output);
 }
 
 Spectrum EstimateDirect(const SurfaceInteraction& Interaction,

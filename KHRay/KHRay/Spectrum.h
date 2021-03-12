@@ -196,6 +196,16 @@ public:
 		}
 		return true;
 	}
+
+	friend CoefficientSpectrum Sqrt(const CoefficientSpectrum& s)
+	{
+		CoefficientSpectrum ret;
+		for (int i = 0; i < NumSpectrumSamples; ++i)
+		{
+			ret.c[i] = std::sqrt(s.c[i]);
+		}
+		return ret;
+	}
 protected:
 	float c[NumSpectrumSamples];
 };

@@ -3,11 +3,6 @@
 #include <windows.h>
 #include <DirectXMath.h>
 
-inline int Flatten2DTo1D(int x, int y, int width)
-{
-	return y * width + x;
-}
-
 template<typename T>
 struct Texture2D
 {

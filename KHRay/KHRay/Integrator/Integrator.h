@@ -33,13 +33,8 @@ public:
 				maxX = maxX <= Width ? maxX : Width;
 				maxY = maxY <= Height ? maxY : Height;
 
-				FilmTile tile;
-
-				RECT rect = { minX, minY, maxX, maxY };
-				int TileWidth = rect.right - rect.left;
-				int TileHeight = rect.bottom - rect.top;
-
-				tile.Rect = rect;
+				FilmTile tile = {};
+				tile.Rect = { minX, minY, maxX, maxY };
 
 				FilmTiles.emplace_back(std::move(tile));
 			}
@@ -61,9 +56,6 @@ private:
 class Integrator
 {
 public:
-	// Tile info for multi threading
-	static constexpr int NumChannels = 3;
-
 	// Output image resolution
 	static constexpr int Width = 1920;
 	static constexpr int Height = 1080;

@@ -61,13 +61,11 @@ bool Scene::Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) c
 
 	if (pSurfaceInteraction)
 	{
-		using namespace DirectX;
-
 		const auto& hit = RTCRayHit.hit;
 		auto Instance = TopLevelAccelerationStructure[hit.instID[0]];
 		auto GeometryDesc = (*Instance.pBLAS)[hit.geomID];
 
-		XMMATRIX mMatrix = Instance.Transform.Matrix();
+		DirectX::XMMATRIX mMatrix = Instance.Transform.Matrix();
 
 		unsigned int idx0 = GeometryDesc.pIndices[hit.primID * 3 + 0];
 		unsigned int idx1 = GeometryDesc.pIndices[hit.primID * 3 + 1];

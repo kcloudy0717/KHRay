@@ -49,9 +49,9 @@ void BottomLevelAccelerationStructure::AddGeometry(const std::filesystem::path& 
 
 	if (paiScene)
 	{
-		for (unsigned int i = 0; i < paiScene->mNumMeshes; ++i)
+		for (unsigned int m = 0; m < paiScene->mNumMeshes; ++m)
 		{
-			const aiMesh* paiMesh = paiScene->mMeshes[i];
+			const aiMesh* paiMesh = paiScene->mMeshes[m];
 
 			auto Geometry = rtcNewGeometry(Device, RTC_GEOMETRY_TYPE_TRIANGLE);
 
@@ -84,30 +84,30 @@ void BottomLevelAccelerationStructure::AddGeometry(const std::filesystem::path& 
 			{
 				auto indices = pIndices;
 
-				for (unsigned int vertexIndex = 0; vertexIndex < paiMesh->mNumVertices; ++vertexIndex)
+				for (unsigned int v = 0; v < paiMesh->mNumVertices; ++v)
 				{
-					Vertex v = {};
+					Vertex vertex = {};
 					// Position
-					v.Position = Vector3f(paiMesh->mVertices[vertexIndex].x, paiMesh->mVertices[vertexIndex].y, paiMesh->mVertices[vertexIndex].z);
+					vertex.Position = Vector3f(paiMesh->mVertices[v].x, paiMesh->mVertices[v].y, paiMesh->mVertices[v].z);
 
 					// Texture coordinates
 					if (paiMesh->HasTextureCoords(0))
 					{
-						v.TextureCoordinate = Vector2f(paiMesh->mTextureCoords[0][vertexIndex].x, paiMesh->mTextureCoords[0][vertexIndex].y);
+						vertex.TextureCoordinate = Vector2f(paiMesh->mTextureCoords[0][v].x, paiMesh->mTextureCoords[0][v].y);
 					}
 
 					// Normal
 					if (paiMesh->HasNormals())
 					{
-						v.Normal = Vector3f(paiMesh->mNormals[vertexIndex].x, paiMesh->mNormals[vertexIndex].y, paiMesh->mNormals[vertexIndex].z);
+						vertex.Normal = Vector3f(paiMesh->mNormals[v].x, paiMesh->mNormals[v].y, paiMesh->mNormals[v].z);
 					}
 
-					pVertices[vertexIndex] = v;
+					pVertices[v] = vertex;
 				}
 
-				for (unsigned int faceIndex = 0; faceIndex < paiMesh->mNumFaces; ++faceIndex)
+				for (unsigned int f = 0; f < paiMesh->mNumFaces; ++f)
 				{
-					const aiFace& aiFace = paiMesh->mFaces[faceIndex];
+					const aiFace& aiFace = paiMesh->mFaces[f];
 					assert(aiFace.mNumIndices == 3);
 
 					indices[0] = aiFace.mIndices[0];

@@ -32,7 +32,7 @@ class BottomLevelAccelerationStructure : public AccelerationStructure
 public:
 	BottomLevelAccelerationStructure(RTCDevice Device);
 
-	RAYTRACING_GEOMETRY_DESC operator[](size_t i) const
+	RAYTRACING_GEOMETRY_DESC& operator[](size_t i)
 	{
 		return GeometryDescs[i];
 	}

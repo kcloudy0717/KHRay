@@ -58,5 +58,5 @@ Spectrum PathIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 
 std::unique_ptr<PathIntegrator> CreatePathIntegrator(int MaxDepth)
 {
-	return std::unique_ptr<PathIntegrator>(new PathIntegrator(MaxDepth));
+	return std::make_unique<PathIntegrator>(MaxDepth);
 }

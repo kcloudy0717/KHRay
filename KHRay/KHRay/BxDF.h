@@ -6,6 +6,9 @@
 
 struct SurfaceInteraction;
 
+float FrDielectric(float cosThetaI, float etaI, float etaT);
+Spectrum FrConductor(float cosThetaI, const Spectrum& etaI, const Spectrum& etaT, const Spectrum& k);
+
 inline float CosTheta(const Vector3f& w)
 {
 	return w.z;
@@ -23,6 +26,58 @@ inline bool SameHemisphere(const Vector3f& v0, const Vector3f& v1)
 {
 	return v0.z * v1.z > 0;
 }
+
+inline Vector3f Reflect(const Vector3f& wo, const Vector3f& n)
+{
+	return -wo + 2.0f * Dot(wo, n) * n;
+}
+
+struct Fresnel
+{
+	virtual ~Fresnel() = default;
+
+	virtual Spectrum Evaluate(float cosThetaI) const
+	{
+		// Default implementation returns 100% reflection for all incoming directions.
+		// Although this is physically implausible, it is a convenient capability to have available.
+		return Spectrum(1.0f);
+	}
+};
+
+struct FresnelDielectric : Fresnel
+{
+	FresnelDielectric(float etaI, float etaT)
+		: etaI(etaI)
+		, etaT(etaT)
+	{
+
+	}
+
+	Spectrum Evaluate(float cosThetaI) const override
+	{
+		return FrDielectric(cosThetaI, etaI, etaT);
+	}
+
+	float etaI, etaT;
+};
+
+struct FresnelConductor : Fresnel
+{
+	FresnelConductor(const Spectrum& etaI, const Spectrum& etaT, const Spectrum& k)
+		: etaI(etaI)
+		, etaT(etaT)
+		, k(k)
+	{
+
+	}
+
+	Spectrum Evaluate(float cosThetaI) const override
+	{
+		return FrConductor(cosThetaI, etaI, etaT, k);
+	}
+
+	Spectrum etaI, etaT, k;
+};
 
 // Interface for BRDF and BTDF
 struct BxDF
@@ -89,6 +144,32 @@ struct LambertianReflection : BxDF
 	Spectrum R;
 };
 
+struct SpecularReflection : BxDF
+{
+	SpecularReflection(const Spectrum& R, Fresnel* fresnel)
+		: BxDF(BxDF::Type(BxDF::BSDF_Reflection | BxDF::BSDF_Specular))
+		, R(R),
+		fresnel(fresnel)
+	{
+
+	}
+
+	Spectrum f(const Vector3f& wo, const Vector3f& wi) const override
+	{
+		return Spectrum(0.0f);
+	}
+
+	Spectrum Samplef(const Vector3f& wo, Vector3f* wi, const Vector2f& Xi, float* pdf) const override
+	{
+		*wi = Vector3f(-wo.x, -wo.y, wo.z);
+		*pdf = 1.0f;
+		return fresnel->Evaluate(CosTheta(*wi)) * R / AbsCosTheta(*wi);
+	}
+
+	Spectrum R;
+	Fresnel* fresnel;
+};
+
 struct BSDF
 {
 	int NumComponents(BxDF::Type Flags = BxDF::BSDF_All) const
@@ -129,6 +210,15 @@ struct BSDF
 	{
 		assert(NumBxDF < MaxBxDFs);
 		BxDFs[NumBxDF++] = pBxDF;
+	}
+
+	void Clear()
+	{
+		for (int i = 0; i < NumBxDF; ++i)
+		{
+			BxDFs[i].reset();
+		}
+		NumBxDF = 0;
 	}
 
 	Spectrum f(const Vector3f& woW, const Vector3f& wiW, BxDF::Type Flags = BxDF::BSDF_All) const;

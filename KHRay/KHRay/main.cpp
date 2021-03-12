@@ -46,6 +46,16 @@ int main(int argc, char** argv)
 	BreakfastRoom.AddGeometry(ModelFolderPath / "breakfast_room" / "breakfast_room.obj");
 	BreakfastRoom.Generate();
 
+	auto& rightLamp = BreakfastRoom[0];
+	rightLamp.BSDF.Clear();
+
+	auto& leftLamp = BreakfastRoom[2];
+	leftLamp.BSDF.Clear();
+
+	Fresnel fresnel;
+	rightLamp.BSDF.Add(std::make_shared<SpecularReflection>(Spectrum(0.9f), &fresnel));
+	leftLamp.BSDF.Add(std::make_shared<SpecularReflection>(Spectrum(0.9f), &fresnel));
+
 	RAYTRACING_INSTANCE_DESC BreakfastRoomInstance = {};
 	BreakfastRoomInstance.Transform.SetScale(5, 5, 5);
 	BreakfastRoomInstance.Transform.Translate(0, 0, 20);
@@ -59,10 +69,10 @@ int main(int argc, char** argv)
 	int NumSamplesPerPixel = 8;
 	Random Random(NumSamplesPerPixel);
 
-	//auto Integrator = CreateNormalIntegrator(Geometric);
+	//auto Integrator = CreateNormalIntegrator(Shading);
 
 	//constexpr int NumSamples = 16;
-	//auto Integrator = CreateAOIntegrator(NumSamples, SamplingStrategy::Uniform);
+	//auto Integrator = CreateAOIntegrator(NumSamples, SamplingStrategy::Cosine);
 
 	int MaxDepth = 5;
 	auto Integrator = CreatePathIntegrator(MaxDepth);
