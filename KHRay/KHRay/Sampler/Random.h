@@ -5,7 +5,7 @@
 class Random : public Sampler
 {
 public:
-	Random(size_t SamplesPerPixel)
+	Random(int SamplesPerPixel)
 		: Sampler(SamplesPerPixel)
 	{
 
@@ -14,6 +14,7 @@ public:
 	std::unique_ptr<Sampler> Clone() const override;
 
 	void StartPixel(int x, int y) override;
+	bool StartNextSample() override;
 
 	float Get1D() override;
 	Vector2f Get2D() override;

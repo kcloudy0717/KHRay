@@ -188,5 +188,5 @@ inline void CoordinateSystem(const Vector3<T>& v1, Vector3<T>* v2, Vector3<T>* v
 	*v3 = Normalize(Cross(v1, *v2));
 }
 
+using Vector3i = Vector3<int>;
 using Vector3f = Vector3<float>;
-using CVector3fRef = const Vector3f&;

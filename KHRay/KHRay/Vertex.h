@@ -14,12 +14,12 @@ struct Vertex
 	Vector3f Normal;
 };
 
-inline float BarycentricInterpolation(float v0, float v1, float v2, CVector3fRef barycentric)
+inline float BarycentricInterpolation(float v0, float v1, float v2, const Vector3f& barycentric)
 {
 	return v0 * barycentric.x + v1 * barycentric.y + v2 * barycentric.z;
 }
 
-inline Vector2f BarycentricInterpolation(Vector2f v0, Vector2f v1, Vector2f v2, CVector3fRef barycentric)
+inline Vector2f BarycentricInterpolation(Vector2f v0, Vector2f v1, Vector2f v2, const Vector3f& barycentric)
 {
 	return
 	{
@@ -28,7 +28,7 @@ inline Vector2f BarycentricInterpolation(Vector2f v0, Vector2f v1, Vector2f v2, 
 	};
 }
 
-inline Vector3f BarycentricInterpolation(Vector3f v0, Vector3f v1, Vector3f v2, CVector3fRef barycentric)
+inline Vector3f BarycentricInterpolation(Vector3f v0, Vector3f v1, Vector3f v2, const Vector3f& barycentric)
 {
 	return
 	{
@@ -38,7 +38,7 @@ inline Vector3f BarycentricInterpolation(Vector3f v0, Vector3f v1, Vector3f v2, 
 	};
 }
 
-inline Vertex BarycentricInterpolation(Vertex v0, Vertex v1, Vertex v2, CVector3fRef barycentric)
+inline Vertex BarycentricInterpolation(Vertex v0, Vertex v1, Vertex v2, const Vector3f& barycentric)
 {
 	Vertex vertex;
 	vertex.Position = BarycentricInterpolation(v0.Position, v1.Position, v2.Position, barycentric);

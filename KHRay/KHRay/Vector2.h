@@ -151,5 +151,5 @@ Vector2<T> Normalize(const Vector2<T>& v)
 	return v / v.Length();
 }
 
+using Vector2i = Vector2<int>;
 using Vector2f = Vector2<float>;
-using CVector2fRef = const Vector2f&;

@@ -168,6 +168,7 @@ Xcopy "$(SolutionDir)..\Submodules\assimp\bin" "$(TargetDir)" /y</Command>
     <ClCompile Include="KHRay\main.cpp" />
     <ClCompile Include="KHRay\Sampler\Random.cpp" />
     <ClCompile Include="KHRay\Sampler\Sampler.cpp" />
+    <ClCompile Include="KHRay\Sampler\Sobol.cpp" />
     <ClCompile Include="KHRay\Sampling.cpp" />
     <ClCompile Include="KHRay\Spectrum.cpp" />
     <ClCompile Include="KHRay\Transform.cpp" />
@@ -187,6 +188,7 @@ Xcopy "$(SolutionDir)..\Submodules\assimp\bin" "$(TargetDir)" /y</Command>
     <ClInclude Include="KHRay\Ray.h" />
     <ClInclude Include="KHRay\Sampler\Random.h" />
     <ClInclude Include="KHRay\Sampler\Sampler.h" />
+    <ClInclude Include="KHRay\Sampler\Sobol.h" />
     <ClInclude Include="KHRay\Sampling.h" />
     <ClInclude Include="KHRay\Spectrum.h" />
     <ClInclude Include="KHRay\Texture2D.h" />

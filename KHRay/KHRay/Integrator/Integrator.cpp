@@ -43,7 +43,7 @@ inline float GammaCorrect(float value)
 int Save(const Texture2D<RGBSpectrum>& Image)
 {
 	constexpr int NumChannels = 3;
-	
+
 	// Saves a input image as a png using stb
 	std::unique_ptr<BYTE[]> Pixels = std::make_unique<BYTE[]>(Image.Width * Image.Height * NumChannels);
 
@@ -196,7 +196,6 @@ int Integrator::Render(const Scene& Scene, const Sampler& Sampler)
 		auto Rect = Tile.Rect;
 
 		auto pSampler = Sampler.Clone();
-		pSampler->StartPixel(Rect.left, Rect.top);
 
 		// Render
 		// For each pixel and pixel sample
@@ -209,8 +208,10 @@ int Integrator::Render(const Scene& Scene, const Sampler& Sampler)
 					DEBUG_PIXEL = true;
 				}
 
+				pSampler->StartPixel(x, y);
+
 				Spectrum L(0);
-				for (int sample = 0; sample < pSampler->GetNumSamplesPerPixel(); ++sample)
+				do
 				{
 					auto sampleJitter = pSampler->Get2D();
 
@@ -220,7 +221,7 @@ int Integrator::Render(const Scene& Scene, const Sampler& Sampler)
 					Ray ray = Scene.Camera.GetRay(u, v);
 
 					L += Li(ray, Scene, *pSampler);
-				}
+				} while (pSampler->StartNextSample());
 
 				L /= float(pSampler->GetNumSamplesPerPixel());
 

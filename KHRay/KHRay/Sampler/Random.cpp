@@ -2,14 +2,18 @@
 
 std::unique_ptr<Sampler> Random::Clone() const
 {
-	auto clone = std::make_unique<Random>(NumSamplesPerPixel);
-	clone->RNG = this->RNG;
-	return clone;
+	return std::make_unique<Random>(*this);
 }
 
 void Random::StartPixel(int x, int y)
 {
 	RNG.seed(x, y);
+	return Sampler::StartPixel(x, y);
+}
+
+bool Random::StartNextSample()
+{
+	return Sampler::StartNextSample();
 }
 
 float Random::Get1D()

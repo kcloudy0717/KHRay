@@ -22,6 +22,7 @@
 #include "Scene.h"
 #include "Sampler/Sampler.h"
 #include "Sampler/Random.h"
+#include "Sampler/Sobol.h"
 #include "Integrator/NormalIntegrator.h"
 #include "Integrator/AOIntegrator.h"
 #include "Integrator/PathIntegrator.h"
@@ -66,9 +67,10 @@ int main(int argc, char** argv)
 	PL0.Transform.Translate(3, 15, 20);
 	Scene.AddLight(&PL0);
 
-	int NumSamplesPerPixel = 8;
-	Random Random(NumSamplesPerPixel);
+	int NumSamplesPerPixel = 16;
 
+	//Random Random(NumSamplesPerPixel);
+	Sobol Sobol(NumSamplesPerPixel, Integrator::Width, Integrator::Height);
 	//auto Integrator = CreateNormalIntegrator(Shading);
 
 	//constexpr int NumSamples = 16;
@@ -78,5 +80,5 @@ int main(int argc, char** argv)
 	auto Integrator = CreatePathIntegrator(MaxDepth);
 
 	Integrator->Initialize(Scene);
-	return Integrator->Render(Scene, Random);
+	return Integrator->Render(Scene, Sobol);
 }

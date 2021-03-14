@@ -6,15 +6,16 @@
 class Sampler
 {
 public:
-	Sampler(size_t NumSamplesPerPixel)
-		: NumSamplesPerPixel(NumSamplesPerPixel)
+	Sampler(int NumSamplesPerPixel)
+		: CurrentPixelSample(0)
+		, NumSamplesPerPixel(NumSamplesPerPixel)
 	{
 
 	}
 
 	virtual ~Sampler() = default;
 
-	size_t GetNumSamplesPerPixel() const
+	int GetNumSamplesPerPixel() const
 	{
 		return NumSamplesPerPixel;
 	}
@@ -28,10 +29,12 @@ public:
 	* This can be used to determinstically initialize the sampler so that repeated program runs
 	* always create the same image.
 	*/
-	virtual void StartPixel(int x, int y) = 0;
+	virtual void StartPixel(int x, int y);
+	virtual bool StartNextSample();
 
 	virtual float Get1D() = 0;
 	virtual Vector2f Get2D() = 0;
 protected:
-	size_t NumSamplesPerPixel;
+	int CurrentPixelSample;
+	int NumSamplesPerPixel;
 };
