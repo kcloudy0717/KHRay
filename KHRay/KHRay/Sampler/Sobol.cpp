@@ -53663,7 +53663,7 @@ void Sobol::StartPixel(int x, int y)
 	this->y = y;
 
 	dimension = 0;
-
+	sobolIndex = GetIndexForSample(0, x, y);
 	return Sampler::StartPixel(x, y);
 }
 

@@ -233,3 +233,17 @@ struct BSDF
 	static constexpr int MaxBxDFs = 8;
 	std::shared_ptr<BxDF> BxDFs[MaxBxDFs];
 };
+
+struct Disney
+{
+	Spectrum Albedo;
+	float Roughness;
+	float Specular;
+	float Metallic;
+	float SpecularTint;
+	float Sheen;
+	float SheenTint;
+	float Subsurface;
+	float ClearCoat;
+	float ClearCoatGloss;
+};
