@@ -53282,6 +53282,7 @@ namespace sobol {
 			0x1397876eU,
 		};
 
+		// From pbrt
 		inline static const uint64_t VdCSobolMatrices[][size] =
 		{
 			{// m = 1
@@ -53410,6 +53411,7 @@ namespace sobol {
 			 0x1400140ULL, 0x1e001e0ULL}
 		};
 
+		// From pbrt
 		inline static const uint64_t VdCSobolMatricesInv[][size] =
 		{
 			{// m = 1
@@ -53606,6 +53608,7 @@ namespace sobol {
 		};
 	};
 
+	// From pbrt
 	inline uint64_t intervalToIndex(const uint32_t m, uint64_t frame, const Vector2i& p)
 	{
 		if (m == 0) return 0;

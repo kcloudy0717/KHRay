@@ -4,7 +4,7 @@
 #include <vector>
 #include "Transform.h"
 #include "Vertex.h"
-#include "BxDF.h"
+#include "BSDF.h"
 
 class AccelerationStructure
 {

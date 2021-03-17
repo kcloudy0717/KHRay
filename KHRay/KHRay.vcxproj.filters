@@ -22,6 +22,9 @@
     <Filter Include="Source Files\Sampler">
       <UniqueIdentifier>{18f244c2-1793-4c1c-a217-5569b26ca85e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Material">
+      <UniqueIdentifier>{35a1f9e1-feef-4c54-853b-0e72e5c7aff3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="KHRay\main.cpp">
@@ -74,6 +77,12 @@
     </ClCompile>
     <ClCompile Include="KHRay\Sampler\Sobol.cpp">
       <Filter>Source Files\Sampler</Filter>
+    </ClCompile>
+    <ClCompile Include="KHRay\Material\Disney.cpp">
+      <Filter>Source Files\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="KHRay\BSDF.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -145,6 +154,12 @@
     </ClInclude>
     <ClInclude Include="KHRay\Sampler\Sobol.h">
       <Filter>Source Files\Sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\Material\Disney.h">
+      <Filter>Source Files\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="KHRay\BSDF.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

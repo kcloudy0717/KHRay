@@ -1,6 +1,6 @@
 #include "Sampling.h"
 
-Vector2f UniformSampleDisk(const Vector2f& Xi)
+Vector2f SampleUniformDisk(const Vector2f& Xi)
 {
 	float radius = std::sqrt(Xi.x);
 	float theta = g_2PI * Xi.y;
@@ -8,7 +8,7 @@ Vector2f UniformSampleDisk(const Vector2f& Xi)
 	return { radius * std::cos(theta), radius * std::sin(theta) };
 }
 
-Vector2f ConcentricSampleDisk(const Vector2f& Xi)
+Vector2f SampleConcentricDisk(const Vector2f& Xi)
 {
 	// Map Xi to $[-1,1]^2$
 	auto XiOffset = 2.0f * Xi - 1.0f;
@@ -35,7 +35,7 @@ Vector2f ConcentricSampleDisk(const Vector2f& Xi)
 	return { radius * std::cos(theta), radius * std::sin(theta) };
 }
 
-Vector3f UniformSampleHemisphere(const Vector2f& Xi)
+Vector3f SampleUniformHemisphere(const Vector2f& Xi)
 {
 	float z = Xi[0];
 	float r = std::sqrt(std::max(0.0f, 1.0f - z * z));
@@ -48,9 +48,9 @@ float UniformHemispherePdf()
 	return g_1DIV2PI;
 }
 
-Vector3f CosineSampleHemisphere(const Vector2f& Xi)
+Vector3f SampleCosineHemisphere(const Vector2f& Xi)
 {
-	auto p = ConcentricSampleDisk(Xi);
+	auto p = SampleConcentricDisk(Xi);
 	float z = std::sqrt(std::max(0.0f, 1.0f - p.x * p.x - p.y * p.y));
 	return { p.x, p.y, z };
 }

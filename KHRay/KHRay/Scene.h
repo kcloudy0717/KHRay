@@ -2,37 +2,12 @@
 #include "Math.h"
 #include "Camera.h"
 #include "AccelerationStructure.h"
-#include "BxDF.h"
+#include "BSDF.h"
 
 #include "Light/Light.h"
 
 class Device;
 struct Scene;
-
-struct OrthonormalBasis
-{
-	OrthonormalBasis() = default;
-	OrthonormalBasis(const Vector3f& n)
-		: n(n)
-	{
-		CoordinateSystem(n, &s, &t);
-	}
-
-	Vector3f ToWorld(const Vector3f& v)
-	{
-		return s * v.x + t * v.y + n * v.z;
-	}
-
-	Vector3f ToLocal(const Vector3f& v)
-	{
-		return Vector3f(Dot(v, s), Dot(v, t), Dot(v, n));
-	}
-
-	// tangent, bitangent, normal
-	Vector3f s;
-	Vector3f t;
-	Vector3f n;
-};
 
 struct Interaction
 {
@@ -57,8 +32,8 @@ struct SurfaceInteraction : Interaction
 {
 	RAYTRACING_INSTANCE_DESC Instance;
 	Vector2f uv; // Texture coord
-	OrthonormalBasis GeometryBasis;
-	OrthonormalBasis ShadingBasis;
+	Frame GeometryFrame;
+	Frame ShadingFrame;
 	BSDF BSDF;
 };
 
@@ -74,7 +49,7 @@ struct Scene
 {
 	Scene(const Device& Device);
 
-	bool Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) const;
+	std::optional<SurfaceInteraction> Intersect(const Ray& Ray) const;
 	bool Occluded(const Ray& Ray) const;
 
 	void AddBottomLevelAccelerationStructure(const RAYTRACING_INSTANCE_DESC& Desc);

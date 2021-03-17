@@ -31,7 +31,7 @@ Scene::Scene(const Device& Device)
 	rtcSetSceneFlags(TopLevelAccelerationStructure, RTC_SCENE_FLAG_ROBUST);
 }
 
-bool Scene::Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) const
+std::optional<SurfaceInteraction> Scene::Intersect(const Ray& Ray) const
 {
 	/*
 	* The intersect context can be used to set intersection
@@ -56,57 +56,55 @@ bool Scene::Intersect(const Ray& Ray, SurfaceInteraction* pSurfaceInteraction) c
 
 	if (RTCRayHit.hit.geomID == RTC_INVALID_GEOMETRY_ID)
 	{
-		return false;
+		return {};
 	}
 
-	if (pSurfaceInteraction)
+	const auto& hit = RTCRayHit.hit;
+	auto Instance = TopLevelAccelerationStructure[hit.instID[0]];
+	auto GeometryDesc = (*Instance.pBLAS)[hit.geomID];
+
+	DirectX::XMMATRIX mMatrix = Instance.Transform.Matrix();
+
+	unsigned int idx0 = GeometryDesc.pIndices[hit.primID * 3 + 0];
+	unsigned int idx1 = GeometryDesc.pIndices[hit.primID * 3 + 1];
+	unsigned int idx2 = GeometryDesc.pIndices[hit.primID * 3 + 2];
+
+	// Fectch vertices and transform them into instance's Transform
+	Vertex vtx0 = GeometryDesc.pVertices[idx0]; vtx0.TransformToWorld(mMatrix);
+	Vertex vtx1 = GeometryDesc.pVertices[idx1]; vtx1.TransformToWorld(mMatrix);
+	Vertex vtx2 = GeometryDesc.pVertices[idx2]; vtx2.TransformToWorld(mMatrix);
+
+	auto p0 = vtx0.Position, p1 = vtx1.Position, p2 = vtx2.Position;
+	// Compute 2 edges of the triangle
+	auto e0 = p1 - p0;
+	auto e1 = p2 - p0;
+	auto n = Normalize(Cross(e0, e1));
+
+	Vector3f barycentrics = { 1.f - hit.u - hit.v, hit.u, hit.v };
+	Vertex interpolatedV = BarycentricInterpolation(vtx0, vtx1, vtx2, barycentrics);
+
+	SurfaceInteraction si = {};
+	si.p = Ray.At(RTCRayHit.ray.tfar);
+	si.wo = -Ray.Direction;
+	si.n = n;
+	si.uv = interpolatedV.TextureCoordinate;
+
+	si.Instance = Instance;
+
+	// Compute geometry basis and shading basis
+	si.GeometryFrame = si.ShadingFrame = Frame(n);
+
+	if (GeometryDesc.HasNormals)
 	{
-		const auto& hit = RTCRayHit.hit;
-		auto Instance = TopLevelAccelerationStructure[hit.instID[0]];
-		auto GeometryDesc = (*Instance.pBLAS)[hit.geomID];
-
-		DirectX::XMMATRIX mMatrix = Instance.Transform.Matrix();
-
-		unsigned int idx0 = GeometryDesc.pIndices[hit.primID * 3 + 0];
-		unsigned int idx1 = GeometryDesc.pIndices[hit.primID * 3 + 1];
-		unsigned int idx2 = GeometryDesc.pIndices[hit.primID * 3 + 2];
-
-		// Fectch vertices and transform them into instance's Transform
-		Vertex vtx0 = GeometryDesc.pVertices[idx0]; vtx0.TransformToWorld(mMatrix);
-		Vertex vtx1 = GeometryDesc.pVertices[idx1]; vtx1.TransformToWorld(mMatrix);
-		Vertex vtx2 = GeometryDesc.pVertices[idx2]; vtx2.TransformToWorld(mMatrix);
-
-		auto p0 = vtx0.Position, p1 = vtx1.Position, p2 = vtx2.Position;
-		// Compute 2 edges of the triangle
-		auto e0 = p1 - p0;
-		auto e1 = p2 - p0;
-		auto n = Normalize(Cross(e0, e1));
-
-		Vector3f barycentrics = { 1.f - hit.u - hit.v, hit.u, hit.v };
-		Vertex interpolatedV = BarycentricInterpolation(vtx0, vtx1, vtx2, barycentrics);
-
-		pSurfaceInteraction->p = Ray.At(RTCRayHit.ray.tfar);
-		pSurfaceInteraction->wo = -Ray.Direction;
-		pSurfaceInteraction->n = n;
-		pSurfaceInteraction->uv = interpolatedV.TextureCoordinate;
-
-		pSurfaceInteraction->Instance = Instance;
-
-		// Compute geometry basis and shading basis
-		pSurfaceInteraction->GeometryBasis = pSurfaceInteraction->ShadingBasis = OrthonormalBasis(n);
-
-		if (GeometryDesc.HasNormals)
-		{
-			auto Ns = Normalize(interpolatedV.Normal);
-			pSurfaceInteraction->ShadingBasis = OrthonormalBasis(Ns);
-		}
-
-		// Update BSDF's internal data
-		pSurfaceInteraction->BSDF = GeometryDesc.BSDF.Clone();
-		pSurfaceInteraction->BSDF.SetInteraction(*pSurfaceInteraction);
+		auto Ns = Normalize(interpolatedV.Normal);
+		si.ShadingFrame = Frame(Ns);
 	}
 
-	return true;
+	// Update BSDF's internal data
+	si.BSDF = GeometryDesc.BSDF.Clone();
+	si.BSDF.SetInteraction(si);
+
+	return si;
 }
 
 bool Scene::Occluded(const Ray& Ray) const

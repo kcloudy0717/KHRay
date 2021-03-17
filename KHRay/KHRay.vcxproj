@@ -157,6 +157,7 @@ Xcopy "$(SolutionDir)..\Submodules\assimp\bin" "$(TargetDir)" /y</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="KHRay\AccelerationStructure.cpp" />
+    <ClCompile Include="KHRay\BSDF.cpp" />
     <ClCompile Include="KHRay\BxDF.cpp" />
     <ClCompile Include="KHRay\Camera.cpp" />
     <ClCompile Include="KHRay\Device.cpp" />
@@ -166,6 +167,7 @@ Xcopy "$(SolutionDir)..\Submodules\assimp\bin" "$(TargetDir)" /y</Command>
     <ClCompile Include="KHRay\Integrator\PathIntegrator.cpp" />
     <ClCompile Include="KHRay\Light\Light.cpp" />
     <ClCompile Include="KHRay\main.cpp" />
+    <ClCompile Include="KHRay\Material\Disney.cpp" />
     <ClCompile Include="KHRay\Sampler\Random.cpp" />
     <ClCompile Include="KHRay\Sampler\Sampler.cpp" />
     <ClCompile Include="KHRay\Sampler\Sobol.cpp" />
@@ -176,6 +178,7 @@ Xcopy "$(SolutionDir)..\Submodules\assimp\bin" "$(TargetDir)" /y</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KHRay\AccelerationStructure.h" />
+    <ClInclude Include="KHRay\BSDF.h" />
     <ClInclude Include="KHRay\BxDF.h" />
     <ClInclude Include="KHRay\Camera.h" />
     <ClInclude Include="KHRay\Device.h" />
@@ -184,6 +187,7 @@ Xcopy "$(SolutionDir)..\Submodules\assimp\bin" "$(TargetDir)" /y</Command>
     <ClInclude Include="KHRay\Integrator\NormalIntegrator.h" />
     <ClInclude Include="KHRay\Integrator\PathIntegrator.h" />
     <ClInclude Include="KHRay\Light\Light.h" />
+    <ClInclude Include="KHRay\Material\Disney.h" />
     <ClInclude Include="KHRay\Math.h" />
     <ClInclude Include="KHRay\Ray.h" />
     <ClInclude Include="KHRay\Sampler\Random.h" />

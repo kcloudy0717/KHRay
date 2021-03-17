@@ -206,6 +206,28 @@ public:
 		}
 		return ret;
 	}
+
+	friend CoefficientSpectrum Lerp(const CoefficientSpectrum& a, const CoefficientSpectrum& b, float t)
+	{
+		CoefficientSpectrum ret;
+		for (int i = 0; i < NumSpectrumSamples; ++i)
+		{
+			ret.c[i] = std::lerp(a.c[i], b.c[i], t);
+		}
+		return ret;
+	}
+
+	explicit operator bool() const
+	{
+		for (int i = 0; i < NumSpectrumSamples; ++i)
+		{
+			if (c[i] != 0)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 protected:
 	float c[NumSpectrumSamples];
 };

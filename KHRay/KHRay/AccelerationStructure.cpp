@@ -151,7 +151,7 @@ void BottomLevelAccelerationStructure::AddGeometry(const std::filesystem::path& 
 				color.r = color.g = color.b = 1.0f;
 			}
 
-			GeometryDesc.BSDF.Add(std::make_shared<LambertianReflection>(Spectrum(color.r, color.g, color.b)));
+			GeometryDesc.BSDF.SetBxDF(std::make_shared<LambertianReflection>(Spectrum(color.r, color.g, color.b)));
 
 			GeometryDescs.push_back(GeometryDesc);
 			Geometries.push_back(Geometry);

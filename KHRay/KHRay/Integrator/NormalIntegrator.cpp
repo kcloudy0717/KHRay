@@ -4,8 +4,8 @@
 
 Spectrum NormalIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 {
-	SurfaceInteraction interaction;
-	if (!scene.Intersect(ray, &interaction))
+	std::optional<SurfaceInteraction> si = scene.Intersect(ray);
+	if (!si)
 	{
 		return Spectrum(0.0f);
 	}
@@ -14,10 +14,10 @@ Spectrum NormalIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 	switch (ViewType)
 	{
 	case Geometric:
-		n = interaction.GeometryBasis.n;
+		n = si->GeometryFrame.n;
 		break;
 	case Shading:
-		n = interaction.ShadingBasis.n;
+		n = si->ShadingFrame.n;
 		break;
 	}
 
@@ -27,5 +27,5 @@ Spectrum NormalIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 
 std::unique_ptr<NormalIntegrator> CreateNormalIntegrator(NormalView ViewType)
 {
-	return std::unique_ptr<NormalIntegrator>(new NormalIntegrator(ViewType));
+	return std::make_unique<NormalIntegrator>(ViewType);
 }

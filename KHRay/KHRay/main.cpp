@@ -20,9 +20,11 @@
 #include "Utility.h"
 #include "Device.h"
 #include "Scene.h"
+
 #include "Sampler/Sampler.h"
 #include "Sampler/Random.h"
 #include "Sampler/Sobol.h"
+
 #include "Integrator/NormalIntegrator.h"
 #include "Integrator/AOIntegrator.h"
 #include "Integrator/PathIntegrator.h"
@@ -47,15 +49,15 @@ int main(int argc, char** argv)
 	BreakfastRoom.AddGeometry(ModelFolderPath / "breakfast_room" / "breakfast_room.obj");
 	BreakfastRoom.Generate();
 
-	auto& rightLamp = BreakfastRoom[0];
-	rightLamp.BSDF.Clear();
 
+	auto& rightLamp = BreakfastRoom[0];
 	auto& leftLamp = BreakfastRoom[2];
-	leftLamp.BSDF.Clear();
 
 	Fresnel fresnel;
-	rightLamp.BSDF.Add(std::make_shared<SpecularReflection>(Spectrum(0.9f), &fresnel));
-	leftLamp.BSDF.Add(std::make_shared<SpecularReflection>(Spectrum(0.9f), &fresnel));
+	std::shared_ptr<Mirror> mirror = std::make_shared<Mirror>(Spectrum(0.9f), &fresnel);
+
+	rightLamp.BSDF.SetBxDF(mirror);
+	leftLamp.BSDF.SetBxDF(mirror);
 
 	RAYTRACING_INSTANCE_DESC BreakfastRoomInstance = {};
 	BreakfastRoomInstance.Transform.SetScale(5, 5, 5);
@@ -71,6 +73,7 @@ int main(int argc, char** argv)
 
 	//Random Random(NumSamplesPerPixel);
 	Sobol Sobol(NumSamplesPerPixel, Integrator::Width, Integrator::Height);
+
 	//auto Integrator = CreateNormalIntegrator(Shading);
 
 	//constexpr int NumSamples = 16;

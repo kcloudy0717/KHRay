@@ -9,37 +9,35 @@ Spectrum PathIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 
 	for (int bounces = 0; ; ++bounces)
 	{
-		SurfaceInteraction interaction;
-		bool foundIntersection = scene.Intersect(ray, &interaction);
+		std::optional<SurfaceInteraction> si = scene.Intersect(ray);
 
-		if (!foundIntersection || bounces >= MaxDepth)
+		if (!si || bounces >= MaxDepth)
 		{
+			// TODO: Add environment light contribution
 			break;
 		}
 
 		// Sample illumination from lights to find path contribution.
 		// (But skip this for perfectly specular BSDFs.)
-		if (interaction.BSDF.NumComponents(BxDF::Type(BxDF::BSDF_All & ~BxDF::BSDF_Specular)) > 0)
+		if (si->BSDF.IsNonSpecular())
 		{
-			L += beta * UniformSampleOneLight(interaction, scene, sampler);
+			L += beta * UniformSampleOneLight(*si, scene, sampler);
 		}
 
 		// Sample BSDF to get new path direction
-		Vector3f wo = -ray.Direction, wi;
-		float pdf;
-		Spectrum f = interaction.BSDF.Samplef(wo, &wi, sampler.Get2D(), &pdf);
+		Vector3f wo = -ray.Direction;
+		std::optional<BSDFSample> bsdfSample = si->BSDF.Samplef(wo, sampler.Get2D());
 
-		if (f.IsBlack() || pdf == 0.0f)
+		if (!bsdfSample)
 		{
 			break;
 		}
 
-		beta *= f * AbsDot(wi, interaction.ShadingBasis.n) / pdf;
+		beta *= bsdfSample->f * AbsDot(bsdfSample->wi, si->ShadingFrame.n) / bsdfSample->pdf;
 
-		ray = interaction.SpawnRay(wi);
+		ray = si->SpawnRay(bsdfSample->wi);
 
 		// Possibly terminate the path with Russian roulette.
-		// Factor out radiance scaling due to refraction in rrBeta.
 		Spectrum rrBeta = beta;
 		float rrMaxComponentValue = rrBeta.MaxComponentValue();
 		if (rrMaxComponentValue < rrThreshold && bounces > 3)

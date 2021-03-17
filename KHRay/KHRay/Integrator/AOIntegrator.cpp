@@ -6,28 +6,28 @@ Spectrum AOIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 {
 	Spectrum L(0);
 
-	SurfaceInteraction interaction = {};
-	if (scene.Intersect(ray, &interaction))
+	std::optional<SurfaceInteraction> si = scene.Intersect(ray);
+	if (si)
 	{
 		// Compute coordinate frame based on true geometry, not shading
 		// geometry.
-		auto n = Faceforward(interaction.GeometryBasis.n, -ray.Direction);
+		auto n = Faceforward(si->GeometryFrame.n, -ray.Direction);
 		Vector3f s, t;
 		CoordinateSystem(n, &s, &t);
 
 		for (int i = 0; i < NumSamples; ++i)
 		{
 			Vector3f wi;
-			float pdf;
+			float pdf = 0.0f;;
 
 			switch (Strategy)
 			{
 			case SamplingStrategy::Uniform:
-				wi = UniformSampleHemisphere(sampler.Get2D());
+				wi = SampleUniformHemisphere(sampler.Get2D());
 				pdf = UniformHemispherePdf();
 				break;
 			case SamplingStrategy::Cosine:
-				wi = CosineSampleHemisphere(sampler.Get2D());
+				wi = SampleCosineHemisphere(sampler.Get2D());
 				pdf = CosineHemispherePdf(std::abs(wi.z));
 				break;
 			}
@@ -38,12 +38,12 @@ Spectrum AOIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 				s.z * wi.x + t.z * wi.y + n.z * wi.z);
 
 			Ray occlusionRay = {};
-			occlusionRay.Origin = interaction.p;
+			occlusionRay.Origin = si->p;
 			occlusionRay.TMin = 0.0001f;
 			occlusionRay.Direction = wi;
 			occlusionRay.TMax = INFINITY;
 
-			if (!scene.Intersect(occlusionRay, nullptr))
+			if (!scene.Occluded(occlusionRay))
 			{
 				L += Dot(wi, n) / pdf;
 			}
@@ -55,5 +55,5 @@ Spectrum AOIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 
 std::unique_ptr<AOIntegrator> CreateAOIntegrator(int NumSamples, SamplingStrategy Strategy /*= SamplingStrategy::Cosine*/)
 {
-	return std::unique_ptr<AOIntegrator>(new AOIntegrator(NumSamples, Strategy));
+	return std::make_unique<AOIntegrator>(NumSamples, Strategy);
 }

@@ -261,7 +261,7 @@ Spectrum EstimateDirect(const SurfaceInteraction& Interaction,
 		// Compute BSDF's value for light sample
 		Spectrum f;
 		// Evaluate BSDF for light sampling strategy
-		f = Interaction.BSDF.f(Interaction.wo, wi) * AbsDot(wi, Interaction.ShadingBasis.n);
+		f = Interaction.BSDF.f(Interaction.wo, wi) * AbsDot(wi, Interaction.ShadingFrame.n);
 		scatteringPdf = Interaction.BSDF.Pdf(Interaction.wo, wi);
 
 		if (!f.IsBlack())
