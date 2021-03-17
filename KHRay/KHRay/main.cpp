@@ -21,6 +21,8 @@
 #include "Device.h"
 #include "Scene.h"
 
+#include "Material/Disney.h"
+
 #include "Sampler/Sampler.h"
 #include "Sampler/Random.h"
 #include "Sampler/Sobol.h"
@@ -49,12 +51,10 @@ int main(int argc, char** argv)
 	BreakfastRoom.AddGeometry(ModelFolderPath / "breakfast_room" / "breakfast_room.obj");
 	BreakfastRoom.Generate();
 
-
 	auto& rightLamp = BreakfastRoom[0];
 	auto& leftLamp = BreakfastRoom[2];
 
-	Fresnel fresnel;
-	std::shared_ptr<Mirror> mirror = std::make_shared<Mirror>(Spectrum(0.9f), &fresnel);
+	std::shared_ptr<Mirror> mirror = std::make_shared<Mirror>(Spectrum(0.9f));
 
 	rightLamp.BSDF.SetBxDF(mirror);
 	leftLamp.BSDF.SetBxDF(mirror);

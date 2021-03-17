@@ -241,14 +241,12 @@ struct LambertianReflection : BxDF
 			wi.z *= -1.0f;
 		}
 
-		float pdf = CosineHemispherePdf(AbsCosTheta(wi));
-
-		return BSDFSample(R * g_1DIVPI, wi, pdf, BxDFFlags::DiffuseReflection);
+		return BSDFSample(f(wo, wi), wi, Pdf(wo, wi, Types), BxDFFlags::DiffuseReflection);
 	}
 
 	BxDFFlags Flags() const override
 	{
-		return R ? BxDFFlags::DiffuseReflection : BxDFFlags::Unknown;
+		return BxDFFlags::DiffuseReflection;
 	}
 
 	Spectrum R;
@@ -256,9 +254,8 @@ struct LambertianReflection : BxDF
 
 struct Mirror : BxDF
 {
-	Mirror(const Spectrum& R, Fresnel* fresnel)
-		: R(R),
-		fresnel(fresnel)
+	Mirror(const Spectrum& R)
+		: R(R)
 	{
 
 	}
@@ -278,7 +275,7 @@ struct Mirror : BxDF
 		Vector3f wi = Vector3f(-wo.x, -wo.y, wo.z);
 		float pdf = 1.0f;
 
-		return BSDFSample(fresnel->Evaluate(CosTheta(wi)) * R / AbsCosTheta(wi), wi, pdf, BxDFFlags::DiffuseReflection);
+		return BSDFSample(R / AbsCosTheta(wi), wi, pdf, BxDFFlags::DiffuseReflection);
 	}
 
 	BxDFFlags Flags() const override
@@ -287,5 +284,4 @@ struct Mirror : BxDF
 	}
 
 	Spectrum R;
-	Fresnel* fresnel;
 };

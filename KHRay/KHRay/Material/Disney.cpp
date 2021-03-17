@@ -39,78 +39,35 @@ inline float FrSchlick(float R0, float cosTheta)
 	return std::lerp(R0, 1.0f, SchlickWeight(cosTheta));
 }
 
-//struct DisneySheen : BxDF
-//{
-//	DisneySheen(const Spectrum& R, float Sheen, float SheenTint)
-//		: BxDF(BxDF::Type(BxDF::BSDF_Reflection | BxDF::BSDF_Diffuse))
-//		, R(R)
-//		, Sheen(Sheen)
-//		, SheenTint(SheenTint)
-//	{
-//
-//	}
-//
-//	Spectrum f(const Vector3f& wo, const Vector3f& wi) const override
-//	{
-//		if (Sheen <= 0.0f)
-//		{
-//			return Spectrum(0.0f);
-//		}
-//
-//		Vector3f wh = Normalize(wi + wo);
-//		float cosThetaD = Dot(wi, wh);
-//
-//		Spectrum tint = CalculateTint(R);
-//		return Sheen * Lerp(Spectrum(1.0f), tint, SheenTint) * SchlickWeight(cosThetaD);
-//	}
-//
-//	Spectrum R;
-//	float Sheen;
-//	float SheenTint;
-//};
-//
-//struct DisneyClearcoat : BxDF
-//{
-//	DisneyClearcoat(float Clearcoat, float ClearcoatGloss)
-//		: BxDF(BxDF::Type(BxDF::BSDF_Reflection | BxDF::BSDF_Glossy))
-//		, Clearcoat(Clearcoat)
-//		, ClearcoatGloss(ClearcoatGloss)
-//	{
-//
-//	}
-//
-//	Spectrum f(const Vector3f& wo, const Vector3f& wi) const override
-//	{
-//		Vector3f wh = Normalize(wi + wo);
-//
-//		// Clearcoat has ior = 1.5 hardcoded -> F0 = 0.04. It then uses the
-//		// GTR1 distribution, which has even fatter tails than Trowbridge-Reitz
-//		// (which is GTR2).
-//		float Dr = GTR1(AbsCosTheta(wh), ClearcoatGloss);
-//		float Fr = FrSchlick(0.04f, Dot(wo, wh));
-//		// The geometric term always based on alpha = 0.25.
-//		float Gr = smithG_GGX(AbsCosTheta(wo), 0.25f) * smithG_GGX(AbsCosTheta(wi), 0.25f);
-//
-//		return Clearcoat * Gr * Fr * Dr / 4.0f;
-//	}
-//
-//	float Clearcoat;
-//	float ClearcoatGloss;
-//};
-//
-//struct DisneyDiffuse : BxDF
-//{
-//
-//};
-//
-//void Disney::ComputeScatteringFunctions(SurfaceInteraction* pSurfaceInteraction)
-//{
-//	Spectrum c = baseColor;
-//	float metallicWeight = metallic;
-//
-//	// Clearcoat
-//	if (clearcoat > 0.0f)
-//	{
-//		pSurfaceInteraction->BSDF.Add(std::make_shared<DisneyClearcoat>(clearcoat, std::lerp(0.1f, 0.001f, clearcoatGloss)));
-//	}
-//}
+Spectrum Disney::f(const Vector3f& wo, const Vector3f& wi) const
+{
+	Vector3f wh = Normalize(wi + wo);
+	float cosThetaD = Dot(wi, wh);
+
+	// Diffuse
+	float Fo = SchlickWeight(AbsCosTheta(wo));
+	float Fi = SchlickWeight(AbsCosTheta(wi));
+
+	Spectrum f_lambert;
+	Spectrum f_retro;
+
+	float Fo = SchlickWeight(AbsCosTheta(wo));
+	float Fi = SchlickWeight(AbsCosTheta(wi));
+	float Rr = 2.0f * roughness * cosThetaD * cosThetaD;
+
+	f_lambert = baseColor / g_PI;
+	f_retro = baseColor / g_PI * Rr * (Fo + Fi + Fo * Fi * (Rr - 1.0f));
+	Spectrum fd = f_lambert * (1.0f - 0.5f * Fo) * (1 - 0.5f * Fi) + f_retro;
+
+	return fd;
+}
+
+float Disney::Pdf(const Vector3f& wo, const Vector3f& wi, BxDFTypes Types) const
+{
+	return 0.0f;
+}
+
+std::optional<BSDFSample> Disney::Samplef(const Vector3f& wo, const Vector2f& Xi, BxDFTypes Types) const
+{
+
+}
