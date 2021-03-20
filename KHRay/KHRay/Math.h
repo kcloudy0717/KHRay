@@ -1,6 +1,8 @@
 #pragma once
 #include <cstdint>
 
+static constexpr float g_EPSILON = 1e-4f;
+
 static constexpr float g_PI = 3.141592654f;
 static constexpr float g_2PI = 6.283185307f;
 static constexpr float g_1DIVPI = 0.318309886f;
@@ -55,6 +57,11 @@ inline int Log2Int(int32_t v)
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Transform.h"
+
+inline Vector3f SphericalDirection(float sinTheta, float cosTheta, float phi)
+{
+	return Vector3f(sinTheta * std::cos(phi), sinTheta * std::sin(phi), cosTheta);
+}
 
 struct Frame
 {

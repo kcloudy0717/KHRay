@@ -51,13 +51,14 @@ int main(int argc, char** argv)
 	BreakfastRoom.AddGeometry(ModelFolderPath / "breakfast_room" / "breakfast_room.obj");
 	BreakfastRoom.Generate();
 
-	auto& rightLamp = BreakfastRoom[0];
 	auto& leftLamp = BreakfastRoom[2];
+	auto& rightLamp = BreakfastRoom[0];
 
+	std::shared_ptr<Disney> disney = std::make_shared<Disney>();
 	std::shared_ptr<Mirror> mirror = std::make_shared<Mirror>(Spectrum(0.9f));
 
+	leftLamp.BSDF.SetBxDF(disney);
 	rightLamp.BSDF.SetBxDF(mirror);
-	leftLamp.BSDF.SetBxDF(mirror);
 
 	RAYTRACING_INSTANCE_DESC BreakfastRoomInstance = {};
 	BreakfastRoomInstance.Transform.SetScale(5, 5, 5);

@@ -4,31 +4,6 @@
 struct Disney : public BxDF
 {
 	Disney() = default;
-	Disney(Spectrum baseColor,
-		float metallic,
-		float subsurface,
-		float specular,
-		float roughness,
-		float specularTint,
-		float anisotropic,
-		float sheen,
-		float sheenTint,
-		float clearcoat,
-		float clearcoatGloss)
-		: baseColor(baseColor)
-		, metallic(metallic)
-		, subsurface(subsurface)
-		, specular(specular)
-		, roughness(roughness)
-		, specularTint(specularTint)
-		, anisotropic(anisotropic)
-		, sheen(sheen)
-		, sheenTint(sheenTint)
-		, clearcoat(clearcoat)
-		, clearcoatGloss(clearcoatGloss)
-	{
-
-	}
 
 	Spectrum f(const Vector3f& wo, const Vector3f& wi) const override;
 
