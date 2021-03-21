@@ -20,6 +20,7 @@ protected:
 
 struct RAYTRACING_GEOMETRY_DESC
 {
+	std::string Name;
 	Vertex* pVertices;
 	unsigned int* pIndices;
 	bool HasNormals;

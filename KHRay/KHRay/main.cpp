@@ -53,12 +53,14 @@ int main(int argc, char** argv)
 
 	auto& leftLamp = BreakfastRoom[2];
 	auto& rightLamp = BreakfastRoom[0];
+	auto& teapot = BreakfastRoom[16];
 
 	std::shared_ptr<Disney> disney = std::make_shared<Disney>();
 	std::shared_ptr<Mirror> mirror = std::make_shared<Mirror>(Spectrum(0.9f));
 
 	leftLamp.BSDF.SetBxDF(disney);
 	rightLamp.BSDF.SetBxDF(mirror);
+	teapot.BSDF.SetBxDF(mirror);
 
 	RAYTRACING_INSTANCE_DESC BreakfastRoomInstance = {};
 	BreakfastRoomInstance.Transform.SetScale(5, 5, 5);

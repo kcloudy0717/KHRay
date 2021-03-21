@@ -4,7 +4,7 @@
 class BSDF
 {
 public:
-	BSDF Clone()
+	BSDF Clone() const
 	{
 		return *this;
 	}

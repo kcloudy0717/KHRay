@@ -11,7 +11,7 @@ Vector2f SampleUniformDisk(const Vector2f& Xi)
 Vector2f SampleConcentricDisk(const Vector2f& Xi)
 {
 	// Map Xi to $[-1,1]^2$
-	auto XiOffset = 2.0f * Xi - 1.0f;
+	Vector2f XiOffset = 2.0f * Xi - 1.0f;
 
 	// Handle degeneracy at the origin
 	if (XiOffset.x == 0.0f && XiOffset.y == 0.0f)
@@ -40,6 +40,7 @@ Vector3f SampleUniformHemisphere(const Vector2f& Xi)
 	float z = Xi[0];
 	float r = std::sqrt(std::max(0.0f, 1.0f - z * z));
 	float phi = 2.0f * g_PI * Xi[1];
+
 	return { r * std::cos(phi), r * std::sin(phi), z };
 }
 
@@ -52,6 +53,7 @@ Vector3f SampleCosineHemisphere(const Vector2f& Xi)
 {
 	auto p = SampleConcentricDisk(Xi);
 	float z = std::sqrt(std::max(0.0f, 1.0f - p.x * p.x - p.y * p.y));
+
 	return { p.x, p.y, z };
 }
 

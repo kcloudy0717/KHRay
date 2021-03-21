@@ -185,7 +185,7 @@ inline void CoordinateSystem(const Vector3<T>& v1, Vector3<T>* v2, Vector3<T>* v
 	{
 		*v2 = Vector3<T>(0.0f, v1.z, -v1.y) / std::sqrt(v1.y * v1.y + v1.z * v1.z);
 	}
-	*v3 = Normalize(Cross(v1, *v2));
+	*v3 = Cross(v1, *v2);
 }
 
 using Vector3i = Vector3<int>;

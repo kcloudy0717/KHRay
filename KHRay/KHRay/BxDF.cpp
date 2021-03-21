@@ -5,7 +5,7 @@
 
 float FrDielectric(float cosThetaI, float etaI, float etaT)
 {
-	cosThetaI = std::clamp<float>(cosThetaI, -1.0f, 1.0f);
+	cosThetaI = std::clamp(cosThetaI, -1.0f, 1.0f);
 
 	// Potentially swap indices of refraction
 	bool entering = cosThetaI > 0.0f;
@@ -34,7 +34,7 @@ float FrDielectric(float cosThetaI, float etaI, float etaT)
 
 Spectrum FrConductor(float cosThetaI, const Spectrum& etaI, const Spectrum& etaT, const Spectrum& k)
 {
-	cosThetaI = std::clamp<float>(cosThetaI, -1.0f, 1.0f);
+	cosThetaI = std::clamp(cosThetaI, -1.0f, 1.0f);
 
 	Spectrum eta = etaT / etaI;
 	Spectrum etak = k / etaI;

@@ -268,7 +268,6 @@ Spectrum Disney::f(const Vector3f& wo, const Vector3f& wi) const
 	// 1.25 scale is used to (roughly) preserve albedo
 	float ss = 1.25f * (Fss * (1.0f / (AbsCosTheta(wo) + AbsCosTheta(wi)) - 0.5f) + 0.5f);
 
-
 	// Sheen
 	DisneySheen DisneySheen(sheen * Csheen);
 
@@ -288,9 +287,9 @@ Spectrum Disney::f(const Vector3f& wo, const Vector3f& wi) const
 	*/
 
 	// specular
-	//float aspect = sqrt(1-mat.anisotropic*.9);
-	//float ax = Max(.001f, sqr(mat.roughness)/aspect);
-	//float ay = Max(.001f, sqr(mat.roughness)*aspect);
+	//float aspect = sqrt(1-anisotropic*.9);
+	//float ax = Max(.001f, sqr(roughness)/aspect);
+	//float ay = Max(.001f, sqr(roughness)*aspect);
 	//float Ds = GTR2_aniso(NDotH, Dot(H, X), Dot(H, Y), ax, ay);
 
 	float a = std::max(0.001f, roughness);

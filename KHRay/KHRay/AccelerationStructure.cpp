@@ -137,6 +137,7 @@ void BottomLevelAccelerationStructure::AddGeometry(const std::filesystem::path& 
 			rtcReleaseGeometry(Geometry);
 
 			RAYTRACING_GEOMETRY_DESC GeometryDesc = {};
+			GeometryDesc.Name = paiMesh->mName.C_Str();
 			GeometryDesc.pVertices = pVertices;
 			GeometryDesc.pIndices = pIndices;
 			GeometryDesc.HasNormals = paiMesh->HasNormals();
