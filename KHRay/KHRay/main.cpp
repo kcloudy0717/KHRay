@@ -58,8 +58,8 @@ int main(int argc, char** argv)
 	std::shared_ptr<Disney> disney = std::make_shared<Disney>();
 	std::shared_ptr<Mirror> mirror = std::make_shared<Mirror>(Spectrum(0.9f));
 
-	leftLamp.BSDF.SetBxDF(disney);
-	rightLamp.BSDF.SetBxDF(mirror);
+	//leftLamp.BSDF.SetBxDF(disney);
+	rightLamp.BSDF.SetBxDF(disney);
 	teapot.BSDF.SetBxDF(mirror);
 
 	RAYTRACING_INSTANCE_DESC BreakfastRoomInstance = {};

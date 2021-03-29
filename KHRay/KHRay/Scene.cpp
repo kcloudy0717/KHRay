@@ -65,24 +65,24 @@ std::optional<SurfaceInteraction> Scene::Intersect(const Ray& Ray) const
 
 	DirectX::XMMATRIX mMatrix = Instance.Transform.Matrix();
 
+	// Fetch indices
 	unsigned int idx0 = GeometryDesc.pIndices[hit.primID * 3 + 0];
 	unsigned int idx1 = GeometryDesc.pIndices[hit.primID * 3 + 1];
 	unsigned int idx2 = GeometryDesc.pIndices[hit.primID * 3 + 2];
 
-	// Fectch vertices and transform them into instance's Transform
-	Vertex vtx0 = GeometryDesc.pVertices[idx0];
-	Vertex vtx1 = GeometryDesc.pVertices[idx1];
-	Vertex vtx2 = GeometryDesc.pVertices[idx2];
+	// Fetch vertices
+	Vertex vtx0 = GeometryDesc.pVertices[idx0]; vtx0.TransformToWorld(mMatrix);
+	Vertex vtx1 = GeometryDesc.pVertices[idx1]; vtx1.TransformToWorld(mMatrix);
+	Vertex vtx2 = GeometryDesc.pVertices[idx2]; vtx2.TransformToWorld(mMatrix);
 
-	auto p0 = vtx0.Position, p1 = vtx1.Position, p2 = vtx2.Position;
+	Vector3f p0 = vtx0.Position, p1 = vtx1.Position, p2 = vtx2.Position;
 	// Compute 2 edges of the triangle
-	auto e0 = p1 - p0;
-	auto e1 = p2 - p0;
-	auto n = Normalize(Cross(e0, e1));
+	Vector3f e0 = p1 - p0;
+	Vector3f e1 = p2 - p0;
+	Vector3f n = Normalize(Cross(e0, e1));
 
 	Vector3f barycentrics = { 1.f - hit.u - hit.v, hit.u, hit.v };
 	Vertex vertex = BarycentricInterpolation(vtx0, vtx1, vtx2, barycentrics);
-	vertex.TransformToWorld(mMatrix);
 
 	SurfaceInteraction si = {};
 	si.p = Ray.At(RTCRayHit.ray.tfar);
@@ -97,7 +97,7 @@ std::optional<SurfaceInteraction> Scene::Intersect(const Ray& Ray) const
 
 	if (GeometryDesc.HasNormals)
 	{
-		auto Ns = Normalize(vertex.Normal);
+		Vector3f Ns = Normalize(vertex.Normal);
 		si.ShadingFrame = Frame(Ns);
 	}
 

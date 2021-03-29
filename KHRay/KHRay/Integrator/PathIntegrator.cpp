@@ -13,7 +13,6 @@ Spectrum PathIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 
 		if (!si || bounces >= MaxDepth)
 		{
-			// TODO: Add environment light contribution
 			break;
 		}
 

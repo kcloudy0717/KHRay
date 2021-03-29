@@ -29,7 +29,7 @@ float FrDielectric(float cosThetaI, float etaI, float etaT)
 
 	float Rparl = ((etaT * cosThetaI) - (etaI * cosThetaT)) / ((etaT * cosThetaI) + (etaI * cosThetaT));
 	float Rperp = ((etaI * cosThetaI) - (etaT * cosThetaT)) / ((etaI * cosThetaI) + (etaT * cosThetaT));
-	return (Rparl * Rparl + Rperp * Rperp) / 2.0f;
+	return (Rparl * Rparl + Rperp * Rperp) * 0.5f;
 }
 
 Spectrum FrConductor(float cosThetaI, const Spectrum& etaI, const Spectrum& etaT, const Spectrum& k)
@@ -55,7 +55,7 @@ Spectrum FrConductor(float cosThetaI, const Spectrum& etaI, const Spectrum& etaT
 	Spectrum t4 = t2 * sinThetaI2;
 	Spectrum Rp = Rs * (t3 - t4) / (t3 + t4);
 
-	return 0.5 * (Rp + Rs);
+	return (Rp + Rs) * 0.5;
 }
 
 float MicrofacetDistribution::Pdf(const Vector3f& wo, const Vector3f& wh) const
