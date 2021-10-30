@@ -1,6 +1,6 @@
-[submodule "Submodules/stb"]
-	path = Submodules/stb
-	url = https://github.com/nothings/stb
-[submodule "Submodules/pcg32"]
-	path = Submodules/pcg32
+[submodule "Dependencies/pcg32"]
+	path = Dependencies/pcg32
 	url = https://github.com/wjakob/pcg32.git
+[submodule "Dependencies/stb"]
+	path = Dependencies/stb
+	url = https://github.com/nothings/stb
