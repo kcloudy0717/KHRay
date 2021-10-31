@@ -5,6 +5,8 @@
 class BSDF
 {
 public:
+	operator bool() const noexcept { return static_cast<bool>(pBxDF); }
+
 	BSDF Clone() const { return *this; }
 
 	void SetBxDF(std::shared_ptr<BxDF> pBxDF);

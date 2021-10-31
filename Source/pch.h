@@ -47,7 +47,8 @@
 
 #include <Windows.h>
 #include <synchapi.h>
-#include <wrl/client.h>
-#include <wrl/event.h>
 #include <shobjidl.h>
 #include <strsafe.h>
+
+#include "Math/Math.h"
+#include "Medium.h"

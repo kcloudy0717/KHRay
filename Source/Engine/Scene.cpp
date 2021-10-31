@@ -1,21 +1,5 @@
 #include "Scene.h"
 
-constexpr float ShadowEpsilon = 0.0001f;
-
-Ray Interaction::SpawnRay(const Vector3f& d) const
-{
-	return Ray(p, 0.0001f, Normalize(d), INFINITY);
-}
-
-Ray Interaction::SpawnRayTo(const Interaction& Interaction) const
-{
-	Vector3f d	  = Interaction.p - p;
-	float	 tmax = d.Length();
-	d			  = Normalize(d);
-
-	return Ray(p, 0.0001f, d, tmax - ShadowEpsilon);
-}
-
 bool VisibilityTester::Unoccluded(const Scene& Scene) const
 {
 	Ray shadowRay = I0.SpawnRayTo(I1);
@@ -58,9 +42,11 @@ std::optional<SurfaceInteraction> Scene::Intersect(const Ray& Ray) const
 		return {};
 	}
 
+	Ray.TMax = RTCRayHit.ray.tfar;
+
 	const auto& hit			 = RTCRayHit.hit;
 	auto		Instance	 = TopLevelAccelerationStructure[hit.instID[0]];
-	const auto& GeometryDesc = (*Instance.pBLAS)[hit.geomID];
+	const auto& GeometryDesc = (*Instance.BLAS)[hit.geomID];
 
 	DirectX::XMMATRIX mMatrix = Instance.Transform.Matrix();
 
@@ -90,7 +76,15 @@ std::optional<SurfaceInteraction> Scene::Intersect(const Ray& Ray) const
 	si.p				  = Ray.At(RTCRayHit.ray.tfar);
 	si.wo				  = -Ray.Direction;
 	si.n				  = n;
-	si.uv				  = vertex.TextureCoordinate;
+	if (Instance.MediumInterface.IsMediumTransition())
+	{
+		si.mediumInterface = Instance.MediumInterface;
+	}
+	else
+	{
+		si.mediumInterface = Ray.Medium;
+	}
+	si.uv = vertex.TextureCoordinate;
 
 	si.Instance = Instance;
 
@@ -121,6 +115,30 @@ bool Scene::Occluded(const Ray& Ray) const
 	rtcOccluded1(TopLevelAccelerationStructure, &RTCIntersectContext, &RTCRay);
 
 	return RTCRay.tfar == -std::numeric_limits<float>::infinity();
+}
+
+bool Scene::IntersectTr(Ray ray, Sampler& sampler, Spectrum* OutTr)
+{
+	Spectrum Tr;
+	while (true)
+	{
+		auto isect = Intersect(ray);
+		if (ray.Medium)
+		{
+			Tr *= ray.Medium->Tr(ray, sampler);
+		}
+
+		if (!isect)
+		{
+			return false;
+		}
+		if (isect->BSDF)
+		{
+			return true;
+		}
+
+		ray = isect->SpawnRay(ray.Direction);
+	}
 }
 
 void Scene::AddBottomLevelAccelerationStructure(const RAYTRACING_INSTANCE_DESC& Desc)

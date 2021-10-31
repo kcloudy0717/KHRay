@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 	RAYTRACING_INSTANCE_DESC BreakfastRoomInstance = {};
 	BreakfastRoomInstance.Transform.SetScale(5, 5, 5);
 	BreakfastRoomInstance.Transform.Translate(0, 0, 20);
-	BreakfastRoomInstance.pBLAS = &BreakfastRoom;
+	BreakfastRoomInstance.BLAS = &BreakfastRoom;
 	Scene.AddBottomLevelAccelerationStructure(BreakfastRoomInstance);
 
 	PointLight PL0(Spectrum(216.0f / 255.0f, 247.0f / 255.0f, 255.0f / 255.0f) * 200.0f);

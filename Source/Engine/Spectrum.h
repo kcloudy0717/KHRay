@@ -158,6 +158,16 @@ public:
 		return ret;
 	}
 
+	friend CoefficientSpectrum Exp(const CoefficientSpectrum& s)
+	{
+		CoefficientSpectrum ret;
+		for (int i = 0; i < NumSpectrumSamples; ++i)
+		{
+			ret.c[i] = std::exp(s.c[i]);
+		}
+		return ret;
+	}
+
 	float MaxComponentValue() const
 	{
 		float m = c[0];
@@ -227,7 +237,7 @@ protected:
 };
 
 template<int NumSpectrumSamples>
-inline CoefficientSpectrum<NumSpectrumSamples> operator*(float a, const CoefficientSpectrum<NumSpectrumSamples>& s)
+CoefficientSpectrum<NumSpectrumSamples> operator*(float a, const CoefficientSpectrum<NumSpectrumSamples>& s)
 {
 	return s * a;
 }

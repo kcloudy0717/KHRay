@@ -177,7 +177,7 @@ void TopLevelAccelerationStructure::AddBottomLevelAccelerationStructure(const RA
 {
 	auto InstanceGeometry = rtcNewGeometry(Device, RTC_GEOMETRY_TYPE_INSTANCE);
 
-	rtcSetGeometryInstancedScene(InstanceGeometry, *Desc.pBLAS);
+	rtcSetGeometryInstancedScene(InstanceGeometry, *Desc.BLAS);
 	rtcAttachGeometry(Scene, InstanceGeometry);
 	rtcReleaseGeometry(InstanceGeometry);
 

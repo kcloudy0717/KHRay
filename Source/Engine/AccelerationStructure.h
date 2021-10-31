@@ -49,7 +49,8 @@ private:
 struct RAYTRACING_INSTANCE_DESC
 {
 	Transform						  Transform;
-	BottomLevelAccelerationStructure* pBLAS;
+	BottomLevelAccelerationStructure* BLAS;
+	MediumInterface					  MediumInterface;
 };
 
 class TopLevelAccelerationStructure : public AccelerationStructure

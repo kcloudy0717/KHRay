@@ -1,6 +1,7 @@
 #pragma once
 #include <embree/rtcore_ray.h>
-#include "Vector3.h"
+
+class IMedium;
 
 struct Ray
 {
@@ -60,9 +61,10 @@ struct Ray
 
 	Vector3f At(float T) const { return Origin + Direction * T; }
 
-	Vector3f Origin;
-	float	 TMin = 0.0f;
-	Vector3f Direction;
-	float	 TMax = INFINITY;
-	float	 Time;
+	Vector3f	  Origin;
+	float		  TMin = 0.0f;
+	Vector3f	  Direction;
+	mutable float TMax = INFINITY;
+	float		  Time;
+	IMedium*	  Medium = nullptr;
 };
