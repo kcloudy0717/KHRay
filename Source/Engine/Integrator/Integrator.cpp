@@ -218,7 +218,7 @@ int Integrator::Render(const Scene& Scene, const Sampler& Sampler)
 					auto u = (float(x) + sampleJitter.x) / (float(Width) - 1);
 					auto v = (float(y) + sampleJitter.y) / (float(Height) - 1);
 
-					Ray ray = Scene.Camera.GetRay(u, v);
+					RayDesc ray = Scene.Camera.GetRay(u, v);
 
 					L += Li(ray, Scene, *pSampler);
 				} while (pSampler->StartNextSample());
@@ -250,31 +250,54 @@ int Integrator::Render(const Scene& Scene, const Sampler& Sampler)
 }
 
 Spectrum EstimateDirect(
-	const SurfaceInteraction& si,
-	const Light&			  light,
-	const Vector2f&			  XiLight,
-	const Scene&			  scene,
-	Sampler&				  sampler)
+	const Interaction& Interaction,
+	const Light&	   Light,
+	const Vector2f&	   XiLight,
+	const Scene&	   Scene,
+	Sampler&		   Sampler,
+	bool			   HandleMedia)
 {
 	Spectrum Ld(0.0f);
 	// Sample light source with multiple importance sampling
 	Vector3f		 wi;
 	float			 lightPdf = 0.0f, scatteringPdf = 0.0f;
 	VisibilityTester visibility;
-	Spectrum		 Li = light.SampleLi(si, XiLight, &wi, &lightPdf, &visibility);
+	Spectrum		 Li = Light.SampleLi(Interaction, XiLight, &wi, &lightPdf, &visibility);
 	if (lightPdf > 0.0f && !Li.IsBlack())
 	{
-		// Compute BSDF's value for light sample
+		// Compute BSDF or phase function's value for light sample
 		Spectrum f;
+		if (Interaction.IsSurfaceInteraction())
+		{
+			// Evaluate BSDF for light sampling strategy
+			const SurfaceInteraction& si = static_cast<const SurfaceInteraction&>(Interaction);
+			f							 = si.BSDF.f(si.wo, wi) * absdot(wi, si.ShadingFrame.n);
+			scatteringPdf				 = si.BSDF.Pdf(si.wo, wi);
+		}
+		else
+		{
+			// Evaluate phase function for light sampling strategy
+			const MediumInteraction& mi = static_cast<const MediumInteraction&>(Interaction);
+			float					 p	= mi.phase->p(mi.wo, wi);
+			f							= Spectrum(p);
+			scatteringPdf				= p;
+		}
+
 		// Evaluate BSDF for light sampling strategy
-		f			  = si.BSDF.f(si.wo, wi) * AbsDot(wi, si.ShadingFrame.n);
-		scatteringPdf = si.BSDF.Pdf(si.wo, wi);
 
 		if (!f.IsBlack())
 		{
-			if (!visibility.Unoccluded(scene))
+			// Compute effect of visibility for light source sample
+			if (HandleMedia)
 			{
-				Li = Spectrum(0.0f);
+				Li *= visibility.Tr(Scene, Sampler);
+			}
+			else
+			{
+				if (!visibility.Unoccluded(Scene))
+				{
+					Li = Spectrum(0.0f);
+				}
 			}
 
 			// Add light's contribution to reflected radiance
@@ -289,24 +312,28 @@ Spectrum EstimateDirect(
 	return Ld;
 }
 
-Spectrum Integrator::UniformSampleOneLight(const SurfaceInteraction& Interaction, const Scene& scene, Sampler& sampler)
+Spectrum Integrator::UniformSampleOneLight(
+	const Interaction& Interaction,
+	const Scene&	   Scene,
+	Sampler&		   Sampler,
+	bool			   HandleMedia)
 {
-	if (scene.Lights.empty())
+	if (Scene.Lights.empty())
 	{
 		return Spectrum(0.0f);
 	}
 
-	int numLights = (int)scene.Lights.size();
+	int numLights = (int)Scene.Lights.size();
 
 	int	  lightIndex;
 	float lightPdf;
 
-	lightIndex = std::min((int)(sampler.Get1D() * numLights), numLights - 1);
+	lightIndex = std::min((int)(Sampler.Get1D() * numLights), numLights - 1);
 	lightPdf   = 1.0f / float(numLights);
 
-	const auto pLight = scene.Lights[lightIndex];
+	const auto pLight = Scene.Lights[lightIndex];
 
-	Vector2f Xi = sampler.Get2D();
+	Vector2f Xi = Sampler.Get2D();
 
-	return EstimateDirect(Interaction, *pLight, Xi, scene, sampler) / lightPdf;
+	return EstimateDirect(Interaction, *pLight, Xi, Scene, Sampler, HandleMedia) / lightPdf;
 }

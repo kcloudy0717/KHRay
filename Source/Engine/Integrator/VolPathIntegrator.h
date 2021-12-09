@@ -1,10 +1,10 @@
 #pragma once
 #include "Integrator.h"
 
-class PathIntegrator : public Integrator
+class VolPathIntegrator : public Integrator
 {
 public:
-	PathIntegrator(int MaxDepth, float rrThreshold = 1.0f)
+	VolPathIntegrator(int MaxDepth, float rrThreshold = 1.0f)
 		: MaxDepth(MaxDepth)
 		, rrThreshold(rrThreshold)
 	{
@@ -17,4 +17,4 @@ private:
 	float rrThreshold;
 };
 
-std::unique_ptr<PathIntegrator> CreatePathIntegrator(int MaxDepth);
+std::unique_ptr<VolPathIntegrator> CreateVolPathIntegrator(int MaxDepth);

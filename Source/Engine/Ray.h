@@ -3,15 +3,15 @@
 
 class IMedium;
 
-struct Ray
+struct RayDesc
 {
-	Ray() = default;
-	Ray(const Vector3f& Origin, float TMin, const Vector3f& Direction, float TMax, float Time = 0.0f)
+	RayDesc() = default;
+	RayDesc(const Vector3f& Origin, float TMin, const Vector3f& Direction, float TMax, const IMedium* Medium = nullptr)
 		: Origin(Origin)
 		, TMin(TMin)
 		, Direction(Direction)
 		, TMax(TMax)
-		, Time(Time)
+		, Medium(Medium)
 	{
 	}
 
@@ -61,10 +61,9 @@ struct Ray
 
 	Vector3f At(float T) const { return Origin + Direction * T; }
 
-	Vector3f	  Origin;
-	float		  TMin = 0.0f;
-	Vector3f	  Direction;
-	mutable float TMax = INFINITY;
-	float		  Time;
-	IMedium*	  Medium = nullptr;
+	Vector3f	   Origin;
+	float		   TMin = 0.0f;
+	Vector3f	   Direction;
+	mutable float  TMax	  = INFINITY;
+	const IMedium* Medium = nullptr;
 };

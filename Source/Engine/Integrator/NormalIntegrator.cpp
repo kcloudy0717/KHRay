@@ -2,7 +2,7 @@
 #include "../Scene.h"
 #include "../Sampler/Sampler.h"
 
-Spectrum NormalIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
+Spectrum NormalIntegrator::Li(RayDesc ray, const Scene& scene, Sampler& sampler)
 {
 	std::optional<SurfaceInteraction> si = scene.Intersect(ray);
 	if (!si)
@@ -21,7 +21,7 @@ Spectrum NormalIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 		break;
 	}
 
-	n = Abs(n);
+	n = abs(n);
 	return { n.x, n.y, n.z };
 }
 

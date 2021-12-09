@@ -2,8 +2,8 @@
 #include <cstdint>
 #include <intrin.h>
 
-#include "Vector2.h"
-#include "Vector3.h"
+#include "TVector2.h"
+#include "TVector3.h"
 #include "Frame.h"
 #include "Ray.h"
 #include "Transform.h"

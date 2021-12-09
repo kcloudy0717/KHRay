@@ -16,7 +16,7 @@ public:
 
 	}
 
-	Spectrum Li(Ray ray, const Scene& scene, Sampler& sampler) override;
+	Spectrum Li(RayDesc ray, const Scene& scene, Sampler& sampler) override;
 private:
 	NormalView ViewType;
 };

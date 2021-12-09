@@ -3,8 +3,8 @@
 #include <vector>
 #include "../Spectrum.h"
 
-struct Ray;
-struct SurfaceInteraction;
+struct RayDesc;
+struct Interaction;
 struct Scene;
 class Sampler;
 
@@ -63,9 +63,13 @@ public:
 	/*
 	 *	Sample the incident radiance along the given ray
 	 */
-	virtual Spectrum Li(Ray ray, const Scene& scene, Sampler& sampler) = 0;
+	virtual Spectrum Li(RayDesc ray, const Scene& scene, Sampler& sampler) = 0;
 
-	static Spectrum UniformSampleOneLight(const SurfaceInteraction& Interaction, const Scene& scene, Sampler& sampler);
+	static Spectrum UniformSampleOneLight(
+		const Interaction& Interaction,
+		const Scene&	   Scene,
+		Sampler&		   Sampler,
+		bool			   HandleMedia);
 
 private:
 	TileManager TileManager;

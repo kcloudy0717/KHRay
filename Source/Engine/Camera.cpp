@@ -2,7 +2,7 @@
 
 using namespace DirectX;
 
-Ray Camera::GetRay(float U, float V) const
+RayDesc Camera::GetRay(float U, float V) const
 {
 	// const float h = tanf(VerticalFOV * 0.5f);
 	const float viewportHeight = 2.0f; //* h;
@@ -24,12 +24,11 @@ Ray Camera::GetRay(float U, float V) const
 	XMStoreFloat3(&rayOrigin, vPosition);
 	XMStoreFloat3(&rayDirection, vDirection);
 
-	return Ray(
+	return RayDesc(
 		{ rayOrigin.x, rayOrigin.y, rayOrigin.z },
 		0.0f,
 		{ rayDirection.x, rayDirection.y, rayDirection.z },
-		INFINITY,
-		1);
+		INFINITY);
 }
 
 void Camera::SetLookAt(DirectX::FXMVECTOR EyePosition, DirectX::FXMVECTOR FocusPosition, DirectX::FXMVECTOR UpDirection)

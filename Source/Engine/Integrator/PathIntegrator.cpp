@@ -2,7 +2,7 @@
 #include "../Scene.h"
 #include "../Sampler/Sampler.h"
 
-Spectrum PathIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
+Spectrum PathIntegrator::Li(RayDesc ray, const Scene& scene, Sampler& sampler)
 {
 	Spectrum L(0), beta(1);
 	bool specularBounce = false;
@@ -20,7 +20,7 @@ Spectrum PathIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 		// (But skip this for perfectly specular BSDFs.)
 		if (si->BSDF.IsNonSpecular())
 		{
-			L += beta * UniformSampleOneLight(*si, scene, sampler);
+			L += beta * UniformSampleOneLight(*si, scene, sampler, false);
 		}
 
 		// Sample BSDF to get new path direction
@@ -32,7 +32,7 @@ Spectrum PathIntegrator::Li(Ray ray, const Scene& scene, Sampler& sampler)
 			break;
 		}
 
-		beta *= bsdfSample->f * AbsDot(bsdfSample->wi, si->ShadingFrame.n) / bsdfSample->pdf;
+		beta *= bsdfSample->f * absdot(bsdfSample->wi, si->ShadingFrame.n) / bsdfSample->pdf;
 
 		ray = si->SpawnRay(bsdfSample->wi);
 

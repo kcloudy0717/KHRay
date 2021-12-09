@@ -18,10 +18,17 @@ struct Interaction
 	{
 	}
 
-	Ray SpawnRay(const Vector3f& d) const;
-	Ray SpawnRayTo(const Interaction& Interaction) const;
+	bool IsSurfaceInteraction() const noexcept { return Type == InteractionType::Surface; }
 
-	InteractionType Type;
+	const IMedium* GetMedium(const Vector3f& w) const noexcept
+	{
+		return dot(w, n) > 0.0f ? mediumInterface.outside : mediumInterface.inside;
+	}
+
+	RayDesc SpawnRay(const Vector3f& d) const;
+	RayDesc SpawnRayTo(const Interaction& Interaction) const;
+
+	InteractionType Type = InteractionType::Surface;
 
 	Vector3f		p; // Hit point
 	Vector3f		wo;
@@ -44,17 +51,17 @@ struct MediumInteraction : Interaction
 {
 	MediumInteraction() noexcept = default;
 	MediumInteraction(
-		const Vector3f& p,
-		const Vector3f& wo,
-		const Vector3f& n,
-		const IMedium*	medium,
-		IPhaseFunction* phase)
-		: Interaction(p, wo, n, medium)
-		, phase(phase)
+		const Vector3f&					  p,
+		const Vector3f&					  wo,
+		const IMedium*					  medium,
+		std::unique_ptr<IPhaseFunction>&& phase)
+		: Interaction(p, wo, Vector3f(0.0f), medium)
+		, phase(std::move(phase))
 	{
+		Type = InteractionType::Medium;
 	}
 
-	[[nodiscard]] bool IsValid() const noexcept { return phase; }
+	[[nodiscard]] bool IsValid() const noexcept { return static_cast<bool>(phase); }
 
-	IPhaseFunction* phase = nullptr;
+	std::unique_ptr<IPhaseFunction> phase;
 };

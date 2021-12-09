@@ -17,7 +17,7 @@ struct Light
 
 	virtual ~Light() = default;
 
-	virtual Spectrum Le(const Ray& Ray);
+	virtual Spectrum Le(const RayDesc& Ray);
 
 	virtual Spectrum SampleLi(
 		const Interaction& Interaction,

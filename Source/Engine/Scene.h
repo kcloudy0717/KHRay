@@ -12,7 +12,8 @@ struct Scene;
 
 struct VisibilityTester
 {
-	bool Unoccluded(const Scene& Scene) const;
+	bool	 Unoccluded(const Scene& Scene) const;
+	Spectrum Tr(const Scene& Scene, Sampler& sampler) const;
 
 	Interaction I0;
 	Interaction I1;
@@ -22,9 +23,9 @@ struct Scene
 {
 	Scene(const RTXDevice& Device);
 
-	[[nodiscard]] std::optional<SurfaceInteraction> Intersect(const Ray& Ray) const;
-	[[nodiscard]] bool								Occluded(const Ray& Ray) const;
-	[[nodiscard]] bool								IntersectTr(Ray ray, Sampler& sampler, Spectrum* OutTr);
+	[[nodiscard]] std::optional<SurfaceInteraction> Intersect(const RayDesc& Ray) const;
+	[[nodiscard]] bool								Occluded(const RayDesc& Ray) const;
+	[[nodiscard]] bool								IntersectTr(RayDesc ray, Sampler& sampler, Spectrum* OutTr);
 
 	void AddBottomLevelAccelerationStructure(const RAYTRACING_INSTANCE_DESC& Desc);
 

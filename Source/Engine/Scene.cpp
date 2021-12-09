@@ -2,9 +2,36 @@
 
 bool VisibilityTester::Unoccluded(const Scene& Scene) const
 {
-	Ray shadowRay = I0.SpawnRayTo(I1);
+	RayDesc shadowRay = I0.SpawnRayTo(I1);
 
 	return !Scene.Occluded(shadowRay);
+}
+
+Spectrum VisibilityTester::Tr(const Scene& Scene, Sampler& sampler) const
+{
+	RayDesc		 ray = I0.SpawnRayTo(I1);
+	Spectrum Tr(1.f);
+	while (true)
+	{
+		std::optional<SurfaceInteraction> isect = Scene.Intersect(ray);
+		// Handle opaque surface along ray's path
+		if (isect && isect->BSDF)
+		{
+			return Spectrum(0.0f);
+		}
+
+		// Update transmittance for current ray segment
+		if (ray.Medium)
+		{
+			Tr *= ray.Medium->Tr(ray, sampler);
+		}
+
+		// Generate next ray segment or return final transmittance
+		if (!isect)
+			break;
+		ray = isect->SpawnRayTo(I1);
+	}
+	return Tr;
 }
 
 Scene::Scene(const RTXDevice& Device)
@@ -14,7 +41,7 @@ Scene::Scene(const RTXDevice& Device)
 	rtcSetSceneFlags(TopLevelAccelerationStructure, RTC_SCENE_FLAG_ROBUST);
 }
 
-std::optional<SurfaceInteraction> Scene::Intersect(const Ray& Ray) const
+std::optional<SurfaceInteraction> Scene::Intersect(const RayDesc& Ray) const
 {
 	/*
 	 * The intersect context can be used to set intersection
@@ -67,7 +94,7 @@ std::optional<SurfaceInteraction> Scene::Intersect(const Ray& Ray) const
 	// Compute 2 edges of the triangle
 	Vector3f e0 = p1 - p0;
 	Vector3f e1 = p2 - p0;
-	Vector3f n	= Normalize(Cross(e0, e1));
+	Vector3f n	= normalize(cross(e0, e1));
 
 	Vector3f barycentrics = { 1.f - hit.u - hit.v, hit.u, hit.v };
 	Vertex	 vertex		  = BarycentricInterpolation(vtx0, vtx1, vtx2, barycentrics);
@@ -76,9 +103,9 @@ std::optional<SurfaceInteraction> Scene::Intersect(const Ray& Ray) const
 	si.p				  = Ray.At(RTCRayHit.ray.tfar);
 	si.wo				  = -Ray.Direction;
 	si.n				  = n;
-	if (Instance.MediumInterface.IsMediumTransition())
+	if (GeometryDesc.MediumInterface.IsMediumTransition())
 	{
-		si.mediumInterface = Instance.MediumInterface;
+		si.mediumInterface = GeometryDesc.MediumInterface;
 	}
 	else
 	{
@@ -93,7 +120,7 @@ std::optional<SurfaceInteraction> Scene::Intersect(const Ray& Ray) const
 
 	if (GeometryDesc.HasNormals)
 	{
-		Vector3f Ns		= Normalize(vertex.Normal);
+		Vector3f Ns		= normalize(vertex.Normal);
 		si.ShadingFrame = Frame(Ns);
 	}
 
@@ -104,7 +131,7 @@ std::optional<SurfaceInteraction> Scene::Intersect(const Ray& Ray) const
 	return si;
 }
 
-bool Scene::Occluded(const Ray& Ray) const
+bool Scene::Occluded(const RayDesc& Ray) const
 {
 	RTCIntersectContext RTCIntersectContext;
 	rtcInitIntersectContext(&RTCIntersectContext);
@@ -117,7 +144,7 @@ bool Scene::Occluded(const Ray& Ray) const
 	return RTCRay.tfar == -std::numeric_limits<float>::infinity();
 }
 
-bool Scene::IntersectTr(Ray ray, Sampler& sampler, Spectrum* OutTr)
+bool Scene::IntersectTr(RayDesc ray, Sampler& sampler, Spectrum* OutTr)
 {
 	Spectrum Tr;
 	while (true)

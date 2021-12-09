@@ -5,7 +5,7 @@ class Sampler;
 
 struct Camera
 {
-	Ray GetRay(float U, float V) const;
+	RayDesc GetRay(float U, float V) const;
 
 	void SetLookAt(DirectX::FXMVECTOR EyePosition, DirectX::FXMVECTOR FocusPosition, DirectX::FXMVECTOR UpDirection);
 

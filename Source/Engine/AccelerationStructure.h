@@ -21,12 +21,13 @@ protected:
 
 struct RAYTRACING_GEOMETRY_DESC
 {
-	std::string	  Name;
-	Vertex*		  pVertices;
-	unsigned int* pIndices;
-	bool		  HasNormals;
-	bool		  HasTextureCoordinates;
-	BSDF		  BSDF;
+	std::string		Name;
+	Vertex*			pVertices;
+	unsigned int*	pIndices;
+	bool			HasNormals;
+	bool			HasTextureCoordinates;
+	BSDF			BSDF;
+	MediumInterface MediumInterface;
 };
 
 class BottomLevelAccelerationStructure : public AccelerationStructure
@@ -50,7 +51,6 @@ struct RAYTRACING_INSTANCE_DESC
 {
 	Transform						  Transform;
 	BottomLevelAccelerationStructure* BLAS;
-	MediumInterface					  MediumInterface;
 };
 
 class TopLevelAccelerationStructure : public AccelerationStructure

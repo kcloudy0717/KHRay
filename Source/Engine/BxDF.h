@@ -63,13 +63,13 @@ inline bool SameHemisphere(const Vector3f& v0, const Vector3f& v1)
 
 inline Vector3f Reflect(const Vector3f& wo, const Vector3f& n)
 {
-	return -wo + 2.0f * Dot(wo, n) * n;
+	return -wo + 2.0f * dot(wo, n) * n;
 }
 
 inline bool Refract(const Vector3f& wi, const Vector3f& n, float eta, Vector3f* wt)
 {
 	// Compute $\cos \theta_\roman{t}$ using Snell's law
-	float cosThetaI	 = Dot(n, wi);
+	float cosThetaI	 = dot(n, wi);
 	float sin2ThetaI = std::max(float(0), float(1.0f - cosThetaI * cosThetaI));
 	float sin2ThetaT = eta * eta * sin2ThetaI;
 
@@ -388,8 +388,8 @@ struct MicrofacetReflection : BxDF
 			return Spectrum(0.);
 		if (wh.x == 0.0f && wh.y == 0.0f && wh.z == 0.0f)
 			return Spectrum(0.);
-		wh		   = Normalize(wh);
-		Spectrum F = fresnel->Evaluate(Dot(wi, wh));
+		wh		   = normalize(wh);
+		Spectrum F = fresnel->Evaluate(dot(wi, wh));
 		return R * distribution->D(wh) * F * distribution->G(wo, wi) / (4.0f * cosThetaI * cosThetaO);
 	}
 
@@ -399,8 +399,8 @@ struct MicrofacetReflection : BxDF
 		{
 			return 0.0f;
 		}
-		Vector3f wh = Normalize(wo + wi);
-		return distribution->Pdf(wo, wh) / (4.0f * Dot(wo, wh));
+		Vector3f wh = normalize(wo + wi);
+		return distribution->Pdf(wo, wh) / (4.0f * dot(wo, wh));
 	}
 
 	std::optional<BSDFSample> Samplef(const Vector3f& wo, const Vector2f& Xi, BxDFTypes Types = BxDFTypes::All)
@@ -413,7 +413,7 @@ struct MicrofacetReflection : BxDF
 		}
 
 		Vector3f wh = distribution->Sample_wh(wo, Xi);
-		if (Dot(wo, wh) < 0) // Should be rare
+		if (dot(wo, wh) < 0) // Should be rare
 		{
 			return {};
 		}
@@ -425,7 +425,7 @@ struct MicrofacetReflection : BxDF
 		}
 
 		// Compute PDF of _wi_ for microfacet reflection
-		float pdf = distribution->Pdf(wo, wh) / (4.0f * Dot(wo, wh));
+		float pdf = distribution->Pdf(wo, wh) / (4.0f * dot(wo, wh));
 
 		return BSDFSample(f(wo, wi), wi, pdf, Flags());
 	}
@@ -460,22 +460,22 @@ struct MicrofacetTransmission : BxDF
 
 		// Compute $\wh$ from $\wo$ and $\wi$ for microfacet transmission
 		float	 eta = CosTheta(wo) > 0 ? (etaB / etaA) : (etaA / etaB);
-		Vector3f wh	 = Normalize(wo + wi * eta);
+		Vector3f wh	 = normalize(wo + wi * eta);
 		if (wh.z < 0)
 			wh = -wh;
 
 		// Same side?
-		if (Dot(wo, wh) * Dot(wi, wh) > 0)
+		if (dot(wo, wh) * dot(wi, wh) > 0)
 			return Spectrum(0);
 
-		Spectrum F = fresnel.Evaluate(Dot(wo, wh));
+		Spectrum F = fresnel.Evaluate(dot(wo, wh));
 
-		float sqrtDenom = Dot(wo, wh) + eta * Dot(wi, wh);
+		float sqrtDenom = dot(wo, wh) + eta * dot(wi, wh);
 		float factor	= 1.0f / eta;
 
 		return (Spectrum(1.0f) - F) * T *
 			   std::abs(
-				   distribution->D(wh) * distribution->G(wo, wi) * eta * eta * AbsDot(wi, wh) * AbsDot(wo, wh) *
+				   distribution->D(wh) * distribution->G(wo, wi) * eta * eta * absdot(wi, wh) * absdot(wo, wh) *
 				   factor * factor / (cosThetaI * cosThetaO * sqrtDenom * sqrtDenom));
 	}
 
@@ -488,14 +488,14 @@ struct MicrofacetTransmission : BxDF
 
 		// Compute $\wh$ from $\wo$ and $\wi$ for microfacet transmission
 		float	 eta = CosTheta(wo) > 0 ? (etaB / etaA) : (etaA / etaB);
-		Vector3f wh	 = Normalize(wo + wi * eta);
+		Vector3f wh	 = normalize(wo + wi * eta);
 
-		if (Dot(wo, wh) * Dot(wi, wh) > 0)
+		if (dot(wo, wh) * dot(wi, wh) > 0)
 			return 0;
 
 		// Compute change of variables _dwh\_dwi_ for microfacet transmission
-		float sqrtDenom = Dot(wo, wh) + eta * Dot(wi, wh);
-		float dwh_dwi	= std::abs((eta * eta * Dot(wi, wh)) / (sqrtDenom * sqrtDenom));
+		float sqrtDenom = dot(wo, wh) + eta * dot(wi, wh);
+		float dwh_dwi	= std::abs((eta * eta * dot(wi, wh)) / (sqrtDenom * sqrtDenom));
 		return distribution->Pdf(wo, wh) * dwh_dwi;
 	}
 
@@ -505,7 +505,7 @@ struct MicrofacetTransmission : BxDF
 		if (wo.z == 0)
 			return {};
 		Vector3f wh = distribution->Sample_wh(wo, Xi);
-		if (Dot(wo, wh) < 0)
+		if (dot(wo, wh) < 0)
 			return {}; // Should be rare
 
 		float	 eta = CosTheta(wo) > 0 ? (etaA / etaB) : (etaB / etaA);

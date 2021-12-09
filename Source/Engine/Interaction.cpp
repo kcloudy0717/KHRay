@@ -2,16 +2,16 @@
 
 constexpr float ShadowEpsilon = 0.0001f;
 
-Ray Interaction::SpawnRay(const Vector3f& d) const
+RayDesc Interaction::SpawnRay(const Vector3f& d) const
 {
-	return Ray(p, 0.0001f, Normalize(d), INFINITY);
+	return RayDesc(p, 0.0001f, normalize(d), INFINITY, GetMedium(d));
 }
 
-Ray Interaction::SpawnRayTo(const Interaction& Interaction) const
+RayDesc Interaction::SpawnRayTo(const Interaction& Interaction) const
 {
 	Vector3f d	  = Interaction.p - p;
 	float	 tmax = d.Length();
-	d			  = Normalize(d);
+	d			  = normalize(d);
 
-	return Ray(p, 0.0001f, d, tmax - ShadowEpsilon);
+	return RayDesc(p, 0.0001f, d, tmax - ShadowEpsilon, GetMedium(d));
 }

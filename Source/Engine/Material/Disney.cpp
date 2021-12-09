@@ -109,8 +109,8 @@ public:
 	{
 		Vector3f wh = wi + wo;
 		if (wh.x == 0 && wh.y == 0 && wh.z == 0) return Spectrum(0.);
-		wh = Normalize(wh);
-		float cosThetaD = Dot(wi, wh);
+		wh = normalize(wh);
+		float cosThetaD = dot(wi, wh);
 
 		return R * SchlickWeight(cosThetaD);
 	}
@@ -150,13 +150,13 @@ public:
 	{
 		Vector3f wh = wi + wo;
 		if (wh.x == 0 && wh.y == 0 && wh.z == 0) return Spectrum(0.);
-		wh = Normalize(wh);
+		wh = normalize(wh);
 
 		// Clearcoat has ior = 1.5 hardcoded -> F0 = 0.04. It then uses the
 		// GTR1 distribution, which has even fatter tails than Trowbridge-Reitz
 		// (which is GTR2).
 		float Dr = D_GTR1(AbsCosTheta(wh), gloss);
-		float Fr = FrSchlick(0.04f, Dot(wo, wh));
+		float Fr = FrSchlick(0.04f, dot(wo, wh));
 		// The geometric term always based on alpha = 0.25.
 		float Gr = smithG_GGX(AbsCosTheta(wo), 0.25f) * smithG_GGX(AbsCosTheta(wi), 0.25f);
 
@@ -170,14 +170,14 @@ public:
 			return 0.0f;
 		}
 
-		Vector3f wh = Normalize(wi + wo);
+		Vector3f wh = normalize(wi + wo);
 
 		// The sampling routine samples wh exactly from the GTR1 distribution.
 		// Thus, the final value of the PDF is just the value of the
 		// distribution for wh converted to a mesure with respect to the
 		// surface normal.
 		float Dr = D_GTR1(AbsCosTheta(wh), gloss);
-		return Dr * AbsCosTheta(wh) / (4 * Dot(wo, wh));
+		return Dr * AbsCosTheta(wh) / (4 * dot(wo, wh));
 	}
 
 	std::optional<BSDFSample> Samplef(const Vector3f& wo, const Vector2f& Xi, BxDFTypes Types = BxDFTypes::All) const override
@@ -189,7 +189,7 @@ public:
 		float cosTheta = std::sqrt(std::max(float(0), (1 - std::pow(alpha2, 1 - Xi[0])) / (1 - alpha2)));
 		float sinTheta = std::sqrt(std::max(float(0), 1 - cosTheta * cosTheta));
 		float phi = 2.0f * g_PI * Xi[1];
-		Vector3f wh = SphericalDirection(sinTheta, cosTheta, phi);
+		Vector3f wh = sphericaldirection(sinTheta, cosTheta, phi);
 		if (!SameHemisphere(wo, wh)) wh = -wh;
 
 		Vector3f wi = Reflect(wo, wh);
@@ -246,8 +246,8 @@ struct DisneyFresnel : Fresnel
 
 Spectrum Disney::f(const Vector3f& wo, const Vector3f& wi) const
 {
-	Vector3f wh = Normalize(wi + wo);
-	float cosThetaD = Dot(wi, wh);
+	Vector3f wh = normalize(wi + wo);
+	float cosThetaD = dot(wi, wh);
 
 	float luminance = baseColor.y();
 	Spectrum Ctint = luminance > 0.0f ? baseColor / luminance : Spectrum(1.0f);
@@ -323,7 +323,7 @@ Spectrum Disney::f(const Vector3f& wo, const Vector3f& wi) const
 
 float Disney::Pdf(const Vector3f& wo, const Vector3f& wi, BxDFTypes Types) const
 {
-	Vector3f wh = Normalize(wo + wi);
+	Vector3f wh = normalize(wo + wi);
 	float cosTheta = AbsCosTheta(wh);
 
 	float specularAlpha = std::max(0.001f, roughness);
@@ -337,7 +337,7 @@ float Disney::Pdf(const Vector3f& wo, const Vector3f& wi, BxDFTypes Types) const
 
 	// calculate diffuse and specular pdfs and mix ratio
 	float ratio = 1.0f / (1.0f + clearcoat);
-	float pdfSpec = std::lerp(pdfGTR1, pdfGTR2, ratio) / (4.0 * abs(Dot(wi, wh)));
+	float pdfSpec = std::lerp(pdfGTR1, pdfGTR2, ratio) / (4.0 * abs(dot(wi, wh)));
 	float pdfDiff = AbsCosTheta(wi) * g_1DIVPI;
 
 	// weight pdfs according to ratios
@@ -376,7 +376,7 @@ std::optional<BSDFSample> Disney::Samplef(const Vector3f& wo, const Vector2f& Xi
 			float alpha = std::max(0.01f, pow(roughness, 2.0f));
 			Vector3f wh = SampleGTR2(_Xi, alpha);
 
-			wi = Normalize(Reflect(wo, wh));
+			wi = normalize(Reflect(wo, wh));
 		}
 		else
 		{
@@ -385,7 +385,7 @@ std::optional<BSDFSample> Disney::Samplef(const Vector3f& wo, const Vector2f& Xi
 			float alpha = std::lerp(0.1f, 0.001f, clearcoatGloss);
 			Vector3f wh = SampleGTR1(_Xi, alpha);
 
-			wi = Normalize(Reflect(wo, wh));
+			wi = normalize(Reflect(wo, wh));
 		}
 
 		return BSDFSample(f(wo, wi), wi, Pdf(wo, wi), Flags());

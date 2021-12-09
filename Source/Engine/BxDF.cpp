@@ -60,7 +60,7 @@ float MicrofacetDistribution::Pdf(const Vector3f& wo, const Vector3f& wh) const
 {
 	if (sampleVisibleArea)
 	{
-		return D(wh) * G1(wo) * AbsDot(wo, wh) / AbsCosTheta(wo);
+		return D(wh) * G1(wo) * absdot(wo, wh) / AbsCosTheta(wo);
 	}
 
 	return D(wh) * AbsCosTheta(wh);
@@ -134,7 +134,7 @@ Vector2f TrowbridgeReitzSample11(float cosTheta, float U1, float U2)
 Vector3f TrowbridgeReitzSample(const Vector3f& wi, float alpha_x, float alpha_y, float U1, float U2)
 {
 	// 1. stretch wi
-	Vector3f wiStretched = Normalize(Vector3f(alpha_x * wi.x, alpha_y * wi.y, wi.z));
+	Vector3f wiStretched = normalize(Vector3f(alpha_x * wi.x, alpha_y * wi.y, wi.z));
 
 	// 2. simulate P22_{wi}(x_slope, y_slope, 1, 1)
 	Vector2f slope = TrowbridgeReitzSample11(CosTheta(wiStretched), U1, U2);
@@ -149,7 +149,7 @@ Vector3f TrowbridgeReitzSample(const Vector3f& wi, float alpha_x, float alpha_y,
 	slope.y = alpha_y * slope.y;
 
 	// 5. compute normal
-	return Normalize(Vector3f(-slope.x, -slope.y, 1.));
+	return normalize(Vector3f(-slope.x, -slope.y, 1.));
 }
 
 // https://github.com/mmp/pbrt-v3/blob/master/src/core/microfacet.cpp#L307
@@ -176,7 +176,7 @@ Vector3f TrowbridgeReitzDistribution::Sample_wh(const Vector3f& wo, const Vector
 			cosTheta			  = 1 / std::sqrt(1 + tanTheta2);
 		}
 		float sinTheta = std::sqrt(std::max((float)0., (float)1. - cosTheta * cosTheta));
-		wh			   = SphericalDirection(sinTheta, cosTheta, phi);
+		wh			   = sphericaldirection(sinTheta, cosTheta, phi);
 		if (!SameHemisphere(wo, wh))
 			wh = -wh;
 	}

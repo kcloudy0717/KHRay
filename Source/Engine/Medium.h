@@ -42,9 +42,9 @@ class IMedium
 public:
 	virtual ~IMedium() = default;
 
-	[[nodiscard]] virtual Spectrum Tr(Ray ray, Sampler& sampler) const noexcept = 0;
+	[[nodiscard]] virtual Spectrum Tr(RayDesc ray, Sampler& sampler) const noexcept = 0;
 
-	[[nodiscard]] virtual Spectrum Sample(Ray ray, Sampler& sampler, MediumInteraction* mi) const noexcept = 0;
+	[[nodiscard]] virtual Spectrum Sample(RayDesc ray, Sampler& sampler, MediumInteraction* mi) const noexcept = 0;
 };
 
 struct MediumInterface
@@ -78,9 +78,9 @@ public:
 	{
 	}
 
-	[[nodiscard]] Spectrum Tr(Ray ray, Sampler& sampler) const noexcept override;
+	[[nodiscard]] Spectrum Tr(RayDesc ray, Sampler& sampler) const noexcept override;
 
-	[[nodiscard]] Spectrum Sample(Ray ray, Sampler& sampler, MediumInteraction* mi) const noexcept override;
+	[[nodiscard]] Spectrum Sample(RayDesc ray, Sampler& sampler, MediumInteraction* mi) const noexcept override;
 
 private:
 	Spectrum sigma_a, sigma_s, sigma_t;

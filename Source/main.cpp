@@ -24,6 +24,7 @@
 #include "Integrator/NormalIntegrator.h"
 #include "Integrator/AOIntegrator.h"
 #include "Integrator/PathIntegrator.h"
+#include "Integrator/VolPathIntegrator.h"
 
 int main(int argc, char** argv)
 {
@@ -37,7 +38,7 @@ int main(int argc, char** argv)
 
 	RTXDevice Device;
 	Scene	  Scene(Device);
-	Scene.Camera.Transform.Translate(0, 15, 5);
+	Scene.Camera.Transform.Translate(0, 15, 20);
 	Scene.Camera.Transform.Rotate(DirectX::XMConvertToRadians(30.0f), 0, 0);
 
 	BottomLevelAccelerationStructure BreakfastRoom(Device);
@@ -48,12 +49,16 @@ int main(int argc, char** argv)
 	auto& rightLamp = BreakfastRoom[0];
 	auto& teapot	= BreakfastRoom[16];
 
+	std::shared_ptr<LambertianReflection> diffuse = std::make_shared<LambertianReflection>(Spectrum(1.0f));
 	std::shared_ptr<Disney> disney = std::make_shared<Disney>();
 	std::shared_ptr<Mirror> mirror = std::make_shared<Mirror>(Spectrum(0.9f));
 
-	// leftLamp.BSDF.SetBxDF(disney);
+	HomogeneousMedium hm0(Spectrum(0.02f), Spectrum(0.1f), 1.0f);
+
+	leftLamp.BSDF.SetBxDF(disney);
 	rightLamp.BSDF.SetBxDF(disney);
-	teapot.BSDF.SetBxDF(mirror);
+	teapot.BSDF.SetBxDF(diffuse);
+	teapot.MediumInterface = MediumInterface(&hm0, nullptr);
 
 	RAYTRACING_INSTANCE_DESC BreakfastRoomInstance = {};
 	BreakfastRoomInstance.Transform.SetScale(5, 5, 5);
@@ -65,19 +70,22 @@ int main(int argc, char** argv)
 	PL0.Transform.Translate(3, 15, 20);
 	Scene.AddLight(&PL0);
 
-	int NumSamplesPerPixel = 16;
+	//int NumSamplesPerPixel = 32;
+	int NumSamplesPerPixel = 32;
 
-	// Random Random(NumSamplesPerPixel);
-	Sobol Sobol(NumSamplesPerPixel, Integrator::Width, Integrator::Height);
+	Random Sampler(NumSamplesPerPixel);
+	//Sobol Sampler(NumSamplesPerPixel, Integrator::Width, Integrator::Height);
 
 	// auto Integrator = CreateNormalIntegrator(Shading);
 
 	// constexpr int NumSamples = 16;
 	// auto Integrator = CreateAOIntegrator(NumSamples, SamplingStrategy::Cosine);
 
-	int	 MaxDepth	= 5;
-	auto Integrator = CreatePathIntegrator(MaxDepth);
+	//int	 MaxDepth	= 5;
+	int	 MaxDepth	= 10000;
+	auto Integrator = CreateVolPathIntegrator(MaxDepth);
+	// auto Integrator = CreatePathIntegrator(MaxDepth);
 
 	Integrator->Initialize(Scene);
-	return Integrator->Render(Scene, Sobol);
+	return Integrator->Render(Scene, Sampler);
 }

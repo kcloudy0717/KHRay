@@ -1,7 +1,7 @@
 #include "Light.h"
 #include "../Scene.h"
 
-Spectrum Light::Le(const Ray& Ray)
+Spectrum Light::Le(const RayDesc& Ray)
 {
 	return Spectrum(0);
 }
@@ -14,10 +14,10 @@ Spectrum PointLight::SampleLi(
 	VisibilityTester*  pVisibilityTester) const
 {
 	Vector3f P(Transform.Position.x, Transform.Position.y, Transform.Position.z);
-	*pWi				  = Normalize(P - Interaction.p);
+	*pWi				  = normalize(P - Interaction.p);
 	*pPdf				  = 1.0f;
 	pVisibilityTester->I0 = Interaction;
 	pVisibilityTester->I1 = { P, {}, {}, {} };
 
-	return I / DistanceSquared(P, Interaction.p);
+	return I / distancesquared(P, Interaction.p);
 }
